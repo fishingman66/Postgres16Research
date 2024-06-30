@@ -1,0 +1,21 @@
+# This file contains ignores for build artifacts from standard builds.
+# Auxiliary files from local workflows, your preferred editor, etc. should
+# be ignored locally using $GIT_DIR/info/exclude or ~/.gitexclude.
+
+# Global excludes across all subdirectories
+*.obj
+*.bc
+*.dylib
+*.dll
+*.exp
+*.vcproj
+*.vcxproj
+
+# Local excludes in root directory
+/PostgresProject
+/GNUmakefile
+/config.cache
+/config.log
+/config.status
+/Debug/
+/Release/
