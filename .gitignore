@@ -14,6 +14,7 @@
 # Local excludes in root directory
 /PostgresProject
 /GNUmakefile
+/contrib
 /config.cache
 /config.log
 /config.status

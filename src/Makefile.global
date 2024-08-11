@@ -36,9 +36,9 @@ all:
 .SECONDARY:
 
 # PostgreSQL version number
-VERSION = 16.3
+VERSION = 16.4
 MAJORVERSION = 16
-VERSION_NUM = 160003
+VERSION_NUM = 160004
 
 PACKAGE_URL = https://www.postgresql.org/
 
@@ -61,8 +61,8 @@ endif
 endif
 else # not PGXS
 vpath_build = no
-abs_top_builddir = /e/work/Postgres_16_3
-abs_top_srcdir = /e/work/Postgres_16_3
+abs_top_builddir = /e/work/Postgres_16
+abs_top_srcdir = /e/work/Postgres_16
 
 ifneq ($(vpath_build),yes)
 top_srcdir = $(top_builddir)

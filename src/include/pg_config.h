@@ -401,6 +401,9 @@
 /* Define to 1 if you have the `SSL_CTX_set_cert_cb' function. */
 #define HAVE_SSL_CTX_SET_CERT_CB 1
 
+/* Define to 1 if you have the `SSL_CTX_set_num_tickets' function. */
+#define HAVE_SSL_CTX_SET_NUM_TICKETS 1
+
 /* Define to 1 if stdbool.h conforms to C99. */
 #define HAVE_STDBOOL_H 1
 
@@ -604,7 +607,7 @@
 #define PACKAGE_NAME "PostgreSQL"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "PostgreSQL 16.3"
+#define PACKAGE_STRING "PostgreSQL 16.4"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "postgresql"
@@ -613,7 +616,7 @@
 #define PACKAGE_URL "https://www.postgresql.org/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "16.3"
+#define PACKAGE_VERSION "16.4"
 
 /* Define to the name of a signed 128-bit integer type. */
 #define PG_INT128_TYPE __int128
@@ -632,7 +635,7 @@
 #define PG_MAJORVERSION_NUM 16
 
 /* PostgreSQL minor version number */
-#define PG_MINORVERSION_NUM 3
+#define PG_MINORVERSION_NUM 4
 
 /* Define to best printf format archetype, usually gnu_printf if available. */
 #define PG_PRINTF_ATTRIBUTE gnu_printf
@@ -641,13 +644,13 @@
 #define PG_USE_STDBOOL 1
 
 /* PostgreSQL version as a string */
-#define PG_VERSION "16.3"
+#define PG_VERSION "16.4"
 
 /* PostgreSQL version as a number */
-#define PG_VERSION_NUM 160003
+#define PG_VERSION_NUM 160004
 
 /* A string containing the version number, platform, and C compiler */
-#define PG_VERSION_STR "PostgreSQL 16.3 on x86_64-w64-mingw32, compiled by x86_64-w64-mingw32-gcc.exe (Rev3, Built by MSYS2 project) 14.1.0, 64-bit"
+#define PG_VERSION_STR "PostgreSQL 16.4 on x86_64-w64-mingw32, compiled by x86_64-w64-mingw32-gcc.exe (Rev1, Built by MSYS2 project) 14.2.0, 64-bit"
 
 /* Define to 1 to allow profiling output to be saved separately for each
    process. */
