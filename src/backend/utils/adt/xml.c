@@ -4,7 +4,7 @@
  *	  XML data type support.
  *
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  * src/backend/utils/adt/xml.c
@@ -47,6 +47,7 @@
 
 #ifdef USE_LIBXML
 #include <libxml/chvalid.h>
+#include <libxml/entities.h>
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
 #include <libxml/tree.h>
@@ -99,7 +100,6 @@
 #include "utils/date.h"
 #include "utils/datetime.h"
 #include "utils/lsyscache.h"
-#include "utils/memutils.h"
 #include "utils/rel.h"
 #include "utils/syscache.h"
 #include "utils/xml.h"
@@ -222,14 +222,14 @@ static void XmlTableDestroyOpaque(struct TableFuncScanState *state);
 
 const TableFuncRoutine XmlTableRoutine =
 {
-	XmlTableInitOpaque,
-	XmlTableSetDocument,
-	XmlTableSetNamespace,
-	XmlTableSetRowFilter,
-	XmlTableSetColumnFilter,
-	XmlTableFetchRow,
-	XmlTableGetValue,
-	XmlTableDestroyOpaque
+	.InitOpaque = XmlTableInitOpaque,
+	.SetDocument = XmlTableSetDocument,
+	.SetNamespace = XmlTableSetNamespace,
+	.SetRowFilter = XmlTableSetRowFilter,
+	.SetColumnFilter = XmlTableSetColumnFilter,
+	.FetchRow = XmlTableFetchRow,
+	.GetValue = XmlTableGetValue,
+	.DestroyOpaque = XmlTableDestroyOpaque
 };
 
 #define NO_XML_SUPPORT() \
@@ -523,6 +523,27 @@ xmlcomment(PG_FUNCTION_ARGS)
 }
 
 
+Datum
+xmltext(PG_FUNCTION_ARGS)
+{
+#ifdef USE_LIBXML
+	text	   *arg = PG_GETARG_TEXT_PP(0);
+	text	   *result;
+	xmlChar    *xmlbuf = NULL;
+
+	xmlbuf = xmlEncodeSpecialChars(NULL, xml_text2xmlChar(arg));
+
+	Assert(xmlbuf);
+
+	result = cstring_to_text_with_len((const char *) xmlbuf, xmlStrlen(xmlbuf));
+	xmlFree(xmlbuf);
+	PG_RETURN_XML_P(result);
+#else
+	NO_XML_SUPPORT();
+	return 0;
+#endif							/* not USE_LIBXML */
+}
+
 
 /*
  * TODO: xmlconcat needs to merge the notations and unparsed entities
@@ -656,8 +677,14 @@ xmltotext_with_options(xmltype *data, XmlOptionType xmloption_arg, bool indent)
 	}
 
 #ifdef USE_LIBXML
-	/* Parse the input according to the xmloption */
-	doc = xml_parse(data, xmloption_arg, true, GetDatabaseEncoding(),
+
+	/*
+	 * Parse the input according to the xmloption.
+	 *
+	 * preserve_whitespace is set to false in case we are indenting, otherwise
+	 * libxml2 will fail to indent elements that have whitespace between them.
+	 */
+	doc = xml_parse(data, xmloption_arg, !indent, GetDatabaseEncoding(),
 					&parsed_xmloptiontype, &content_nodes,
 					(Node *) &escontext);
 	if (doc == NULL || escontext.error_occurred)
@@ -781,7 +808,22 @@ xmltotext_with_options(xmltype *data, XmlOptionType xmloption_arg, bool indent)
 						"could not close xmlSaveCtxtPtr");
 		}
 
-		result = (text *) xmlBuffer_to_xmltype(buf);
+		/*
+		 * xmlDocContentDumpOutput may add a trailing newline, so remove that.
+		 */
+		if (xmloption_arg == XMLOPTION_DOCUMENT)
+		{
+			const char *str = (const char *) xmlBufferContent(buf);
+			int			len = xmlBufferLength(buf);
+
+			while (len > 0 && (str[len - 1] == '\n' ||
+							   str[len - 1] == '\r'))
+				len--;
+
+			result = cstring_to_text_with_len(str, len);
+		}
+		else
+			result = (text *) xmlBuffer_to_xmltype(buf);
 	}
 	PG_CATCH();
 	{
@@ -2184,8 +2226,7 @@ xml_errorHandler(void *data, PgXmlErrorPtr error)
 		appendBinaryStringInfo(&xmlerrcxt->err_buf, errorBuf->data,
 							   errorBuf->len);
 
-		pfree(errorBuf->data);
-		pfree(errorBuf);
+		destroyStringInfo(errorBuf);
 		return;
 	}
 
@@ -2216,8 +2257,7 @@ xml_errorHandler(void *data, PgXmlErrorPtr error)
 				(errmsg_internal("%s", errorBuf->data)));
 	}
 
-	pfree(errorBuf->data);
-	pfree(errorBuf);
+	destroyStringInfo(errorBuf);
 }
 
 
@@ -4408,7 +4448,13 @@ xpath_internal(text *xpath_expr_text, xmltype *data, ArrayType *namespaces,
 			}
 		}
 
-		xpathcomp = xmlXPathCompile(xpath_expr);
+		/*
+		 * Note: here and elsewhere, be careful to use xmlXPathCtxtCompile not
+		 * xmlXPathCompile.  In libxml2 2.13.3 and older, the latter function
+		 * fails to defend itself against recursion-to-stack-overflow.  See
+		 * https://gitlab.gnome.org/GNOME/libxml2/-/issues/799
+		 */
+		xpathcomp = xmlXPathCtxtCompile(xpathctx, xpath_expr);
 		if (xpathcomp == NULL || xmlerrcxt->err_occurred)
 			xml_ereport(xmlerrcxt, ERROR, ERRCODE_INTERNAL_ERROR,
 						"invalid XPath expression");
@@ -4779,7 +4825,10 @@ XmlTableSetRowFilter(TableFuncScanState *state, const char *path)
 
 	xstr = pg_xmlCharStrndup(path, strlen(path));
 
-	xtCxt->xpathcomp = xmlXPathCompile(xstr);
+	/* We require XmlTableSetDocument to have been done already */
+	Assert(xtCxt->xpathcxt != NULL);
+
+	xtCxt->xpathcomp = xmlXPathCtxtCompile(xtCxt->xpathcxt, xstr);
 	if (xtCxt->xpathcomp == NULL || xtCxt->xmlerrcxt->err_occurred)
 		xml_ereport(xtCxt->xmlerrcxt, ERROR, ERRCODE_SYNTAX_ERROR,
 					"invalid XPath expression");
@@ -4810,7 +4859,10 @@ XmlTableSetColumnFilter(TableFuncScanState *state, const char *path, int colnum)
 
 	xstr = pg_xmlCharStrndup(path, strlen(path));
 
-	xtCxt->xpathscomp[colnum] = xmlXPathCompile(xstr);
+	/* We require XmlTableSetDocument to have been done already */
+	Assert(xtCxt->xpathcxt != NULL);
+
+	xtCxt->xpathscomp[colnum] = xmlXPathCtxtCompile(xtCxt->xpathcxt, xstr);
 	if (xtCxt->xpathscomp[colnum] == NULL || xtCxt->xmlerrcxt->err_occurred)
 		xml_ereport(xtCxt->xmlerrcxt, ERROR, ERRCODE_DATA_EXCEPTION,
 					"invalid XPath expression");

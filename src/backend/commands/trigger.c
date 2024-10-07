@@ -3,7 +3,7 @@
  * trigger.c
  *	  PostgreSQL TRIGGERs support code.
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  * IDENTIFICATION
@@ -22,7 +22,6 @@
 #include "access/xact.h"
 #include "catalog/catalog.h"
 #include "catalog/dependency.h"
-#include "catalog/index.h"
 #include "catalog/indexing.h"
 #include "catalog/objectaccess.h"
 #include "catalog/partition.h"
@@ -32,10 +31,8 @@
 #include "catalog/pg_trigger.h"
 #include "catalog/pg_type.h"
 #include "commands/dbcommands.h"
-#include "commands/defrem.h"
 #include "commands/trigger.h"
 #include "executor/executor.h"
-#include "executor/execPartition.h"
 #include "miscadmin.h"
 #include "nodes/bitmapset.h"
 #include "nodes/makefuncs.h"
@@ -44,16 +41,12 @@
 #include "parser/parse_collate.h"
 #include "parser/parse_func.h"
 #include "parser/parse_relation.h"
-#include "parser/parsetree.h"
 #include "partitioning/partdesc.h"
 #include "pgstat.h"
 #include "rewrite/rewriteManip.h"
-#include "storage/bufmgr.h"
 #include "storage/lmgr.h"
-#include "tcop/utility.h"
 #include "utils/acl.h"
 #include "utils/builtins.h"
-#include "utils/bytea.h"
 #include "utils/fmgroids.h"
 #include "utils/guc_hooks.h"
 #include "utils/inval.h"
@@ -4004,8 +3997,8 @@ afterTriggerCheckState(AfterTriggerShared evtshared)
 static Bitmapset *
 afterTriggerCopyBitmap(Bitmapset *src)
 {
-	Bitmapset	   *dst;
-	MemoryContext	oldcxt;
+	Bitmapset  *dst;
+	MemoryContext oldcxt;
 
 	if (src == NULL)
 		return NULL;

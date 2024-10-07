@@ -4,7 +4,7 @@
  *	  Post-processing of a completed plan tree: fix references to subplan
  *	  vars, compute regproc values for operators, etc
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  *
@@ -23,10 +23,10 @@
 #include "optimizer/pathnode.h"
 #include "optimizer/planmain.h"
 #include "optimizer/planner.h"
+#include "optimizer/subselect.h"
 #include "optimizer/tlist.h"
 #include "parser/parse_relation.h"
 #include "tcop/utility.h"
-#include "utils/lsyscache.h"
 #include "utils/syscache.h"
 
 
@@ -34,7 +34,7 @@ typedef enum
 {
 	NRM_EQUAL,					/* expect exact match of nullingrels */
 	NRM_SUBSET,					/* actual Var may have a subset of input */
-	NRM_SUPERSET				/* actual Var may have a superset of input */
+	NRM_SUPERSET,				/* actual Var may have a superset of input */
 } NullingRelsMatch;
 
 typedef struct
@@ -1143,7 +1143,9 @@ set_plan_refs(PlannerInfo *root, Plan *plan, int rtoffset)
 				 */
 				if (splan->mergeActionLists != NIL)
 				{
+					List	   *newMJC = NIL;
 					ListCell   *lca,
+							   *lcj,
 							   *lcr;
 
 					/*
@@ -1164,10 +1166,12 @@ set_plan_refs(PlannerInfo *root, Plan *plan, int rtoffset)
 
 					itlist = build_tlist_index(subplan->targetlist);
 
-					forboth(lca, splan->mergeActionLists,
-							lcr, splan->resultRelations)
+					forthree(lca, splan->mergeActionLists,
+							 lcj, splan->mergeJoinConditions,
+							 lcr, splan->resultRelations)
 					{
 						List	   *mergeActionList = lfirst(lca);
+						Node	   *mergeJoinCondition = lfirst(lcj);
 						Index		resultrel = lfirst_int(lcr);
 
 						foreach(l, mergeActionList)
@@ -1192,7 +1196,19 @@ set_plan_refs(PlannerInfo *root, Plan *plan, int rtoffset)
 																  NRM_EQUAL,
 																  NUM_EXEC_QUAL(plan));
 						}
+
+						/* Fix join condition too. */
+						mergeJoinCondition = (Node *)
+							fix_join_expr(root,
+										  (List *) mergeJoinCondition,
+										  NULL, itlist,
+										  resultrel,
+										  rtoffset,
+										  NRM_EQUAL,
+										  NUM_EXEC_QUAL(plan));
+						newMJC = lappend(newMJC, mergeJoinCondition);
 					}
+					splan->mergeJoinConditions = newMJC;
 				}
 
 				splan->nominalRelation += rtoffset;
@@ -1519,19 +1535,30 @@ clean_up_removed_plan_level(Plan *parent, Plan *child)
 {
 	/*
 	 * We have to be sure we don't lose any initplans, so move any that were
-	 * attached to the parent plan to the child.  If we do move any, the child
-	 * is no longer parallel-safe.
+	 * attached to the parent plan to the child.  If any are parallel-unsafe,
+	 * the child is no longer parallel-safe.  As a cosmetic matter, also add
+	 * the initplans' run costs to the child's costs.
 	 */
 	if (parent->initPlan)
-		child->parallel_safe = false;
+	{
+		Cost		initplan_cost;
+		bool		unsafe_initplans;
 
-	/*
-	 * Attach plans this way so that parent's initplans are processed before
-	 * any pre-existing initplans of the child.  Probably doesn't matter, but
-	 * let's preserve the ordering just in case.
-	 */
-	child->initPlan = list_concat(parent->initPlan,
-								  child->initPlan);
+		SS_compute_initplan_cost(parent->initPlan,
+								 &initplan_cost, &unsafe_initplans);
+		child->startup_cost += initplan_cost;
+		child->total_cost += initplan_cost;
+		if (unsafe_initplans)
+			child->parallel_safe = false;
+
+		/*
+		 * Attach plans this way so that parent's initplans are processed
+		 * before any pre-existing initplans of the child.  Probably doesn't
+		 * matter, but let's preserve the ordering just in case.
+		 */
+		child->initPlan = list_concat(parent->initPlan,
+									  child->initPlan);
+	}
 
 	/*
 	 * We also have to transfer the parent's column labeling info into the
@@ -2748,11 +2775,11 @@ build_tlist_index_other_vars(List *tlist, int ignore_rel)
  * Also ensure that varnosyn is incremented by rtoffset.
  * If no match, return NULL.
  *
- * In debugging builds, we cross-check the varnullingrels of the subplan
- * output Var based on nrm_match.  Most call sites should pass NRM_EQUAL
- * indicating we expect an exact match.  However, there are places where
- * we haven't cleaned things up completely, and we have to settle for
- * allowing subset or superset matches.
+ * We cross-check the varnullingrels of the subplan output Var based on
+ * nrm_match.  Most call sites should pass NRM_EQUAL indicating we expect
+ * an exact match.  However, there are places where we haven't cleaned
+ * things up completely, and we have to settle for allowing subset or
+ * superset matches.
  */
 static Var *
 search_indexed_tlist_for_var(Var *var, indexed_tlist *itlist,
@@ -2924,7 +2951,14 @@ search_indexed_tlist_for_sortgroupref(Expr *node,
 	{
 		TargetEntry *tle = (TargetEntry *) lfirst(lc);
 
-		/* The equal() check should be redundant, but let's be paranoid */
+		/*
+		 * Usually the equal() check is redundant, but in setop plans it may
+		 * not be, since prepunion.c assigns ressortgroupref equal to the
+		 * column resno without regard to whether that matches the topmost
+		 * level's sortgrouprefs and without regard to whether any implicit
+		 * coercions are added in the setop tree.  We might have to clean that
+		 * up someday; but for now, just ignore any false matches.
+		 */
 		if (tle->ressortgroupref == sortgroupref &&
 			equal(node, tle->expr))
 		{

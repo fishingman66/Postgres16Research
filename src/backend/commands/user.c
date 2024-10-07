@@ -3,7 +3,7 @@
  * user.c
  *	  Commands for manipulating roles (formerly called users).
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  * src/backend/commands/user.c
@@ -38,7 +38,6 @@
 #include "utils/catcache.h"
 #include "utils/fmgroids.h"
 #include "utils/syscache.h"
-#include "utils/timestamp.h"
 #include "utils/varlena.h"
 
 /*
@@ -64,7 +63,7 @@ typedef enum
 	RRG_REMOVE_ADMIN_OPTION,
 	RRG_REMOVE_INHERIT_OPTION,
 	RRG_REMOVE_SET_OPTION,
-	RRG_DELETE_GRANT
+	RRG_DELETE_GRANT,
 } RevokeRoleGrantAction;
 
 /* Potentially set by pg_upgrade_support functions */
@@ -868,7 +867,7 @@ AlterRole(ParseState *pstate, AlterRoleStmt *stmt)
 			ereport(ERROR,
 					(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
 					 errmsg("permission denied to alter role"),
-					 errdetail("The bootstrap user must have the %s attribute.",
+					 errdetail("The bootstrap superuser must have the %s attribute.",
 							   "SUPERUSER")));
 
 		new_record[Anum_pg_authid_rolsuper - 1] = BoolGetDatum(should_be_super);
@@ -1929,7 +1928,7 @@ AddRoleMems(Oid currentUserId, const char *rolename, Oid roleid,
 				HeapTuple	mrtup;
 				Form_pg_authid mrform;
 
-				mrtup = SearchSysCache1(AUTHOID, memberid);
+				mrtup = SearchSysCache1(AUTHOID, ObjectIdGetDatum(memberid));
 				if (!HeapTupleIsValid(mrtup))
 					elog(ERROR, "cache lookup failed for role %u", memberid);
 				mrform = (Form_pg_authid) GETSTRUCT(mrtup);

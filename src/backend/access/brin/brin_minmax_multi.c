@@ -2,7 +2,7 @@
  * brin_minmax_multi.c
  *		Implementation of Multi Min/Max opclass for BRIN
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  *
@@ -59,16 +59,16 @@
 /* needed for PGSQL_AF_INET */
 #include <sys/socket.h>
 
-#include "access/genam.h"
 #include "access/brin.h"
 #include "access/brin_internal.h"
 #include "access/brin_tuple.h"
+#include "access/genam.h"
+#include "access/htup_details.h"
 #include "access/reloptions.h"
 #include "access/stratnum.h"
-#include "access/htup_details.h"
-#include "catalog/pg_type.h"
 #include "catalog/pg_am.h"
 #include "catalog/pg_amop.h"
+#include "catalog/pg_type.h"
 #include "utils/array.h"
 #include "utils/builtins.h"
 #include "utils/date.h"
@@ -77,7 +77,6 @@
 #include "utils/inet.h"
 #include "utils/lsyscache.h"
 #include "utils/memutils.h"
-#include "utils/numeric.h"
 #include "utils/pg_lsn.h"
 #include "utils/rel.h"
 #include "utils/syscache.h"
@@ -1369,7 +1368,7 @@ build_distances(FmgrInfo *distanceFn, Oid colloid,
 	 * Sort the distances in descending order, so that the longest gaps are at
 	 * the front.
 	 */
-	pg_qsort(distances, ndistances, sizeof(DistanceValue), compare_distances);
+	qsort(distances, ndistances, sizeof(DistanceValue), compare_distances);
 
 	return distances;
 }
@@ -1660,6 +1659,9 @@ ensure_free_space_in_buffer(BrinDesc *bdesc, Oid colloid,
 	/* build the expanded ranges */
 	eranges = build_expanded_ranges(cmpFn, colloid, range, &neranges);
 
+	/* Is the expanded representation of ranges correct? */
+	AssertCheckExpandedRanges(bdesc, colloid, attno, attr, eranges, neranges);
+
 	/* and we'll also need the 'distance' procedure */
 	distanceFn = minmax_multi_get_procinfo(bdesc, attno, PROCNUM_DISTANCE);
 
@@ -1674,6 +1676,9 @@ ensure_free_space_in_buffer(BrinDesc *bdesc, Oid colloid,
 	neranges = reduce_expanded_ranges(eranges, neranges, distances,
 									  range->maxvalues * MINMAX_BUFFER_LOAD_FACTOR,
 									  cmpFn, colloid);
+
+	/* Is the result of reducing expanded ranges correct? */
+	AssertCheckExpandedRanges(bdesc, colloid, attno, attr, eranges, neranges);
 
 	/* Make sure we've sufficiently reduced the number of ranges. */
 	Assert(count_values(eranges, neranges) <= range->maxvalues * MINMAX_BUFFER_LOAD_FACTOR);
@@ -2576,7 +2581,7 @@ brin_minmax_multi_consistent(PG_FUNCTION_ARGS)
 
 		for (keyno = 0; keyno < nkeys; keyno++)
 		{
-			Datum		matches;
+			bool		matches;
 			ScanKey		key = keys[keyno];
 
 			/* NULL keys are handled and filtered-out in bringetbitmap */
@@ -2592,7 +2597,7 @@ brin_minmax_multi_consistent(PG_FUNCTION_ARGS)
 					finfo = minmax_multi_get_strategy_procinfo(bdesc, attno, subtype,
 															   key->sk_strategy);
 					/* first value from the array */
-					matches = FunctionCall2Coll(finfo, colloid, minval, value);
+					matches = DatumGetBool(FunctionCall2Coll(finfo, colloid, minval, value));
 					break;
 
 				case BTEqualStrategyNumber:
@@ -2638,18 +2643,18 @@ brin_minmax_multi_consistent(PG_FUNCTION_ARGS)
 					finfo = minmax_multi_get_strategy_procinfo(bdesc, attno, subtype,
 															   key->sk_strategy);
 					/* last value from the array */
-					matches = FunctionCall2Coll(finfo, colloid, maxval, value);
+					matches = DatumGetBool(FunctionCall2Coll(finfo, colloid, maxval, value));
 					break;
 
 				default:
 					/* shouldn't happen */
 					elog(ERROR, "invalid strategy number %d", key->sk_strategy);
-					matches = 0;
+					matches = false;
 					break;
 			}
 
 			/* the range has to match all the scan keys */
-			matching &= DatumGetBool(matches);
+			matching &= matches;
 
 			/* once we find a non-matching key, we're done */
 			if (!matching)
@@ -2660,7 +2665,7 @@ brin_minmax_multi_consistent(PG_FUNCTION_ARGS)
 		 * have we found a range matching all scan keys? if yes, we're done
 		 */
 		if (matching)
-			PG_RETURN_DATUM(BoolGetDatum(true));
+			PG_RETURN_BOOL(true);
 	}
 
 	/*
@@ -2677,7 +2682,7 @@ brin_minmax_multi_consistent(PG_FUNCTION_ARGS)
 
 		for (keyno = 0; keyno < nkeys; keyno++)
 		{
-			Datum		matches;
+			bool		matches;
 			ScanKey		key = keys[keyno];
 
 			/* we've already dealt with NULL keys at the beginning */
@@ -2697,18 +2702,18 @@ brin_minmax_multi_consistent(PG_FUNCTION_ARGS)
 
 					finfo = minmax_multi_get_strategy_procinfo(bdesc, attno, subtype,
 															   key->sk_strategy);
-					matches = FunctionCall2Coll(finfo, colloid, val, value);
+					matches = DatumGetBool(FunctionCall2Coll(finfo, colloid, val, value));
 					break;
 
 				default:
 					/* shouldn't happen */
 					elog(ERROR, "invalid strategy number %d", key->sk_strategy);
-					matches = 0;
+					matches = false;
 					break;
 			}
 
 			/* the range has to match all the scan keys */
-			matching &= DatumGetBool(matches);
+			matching &= matches;
 
 			/* once we find a non-matching key, we're done */
 			if (!matching)
@@ -2717,10 +2722,10 @@ brin_minmax_multi_consistent(PG_FUNCTION_ARGS)
 
 		/* have we found a range matching all scan keys? if yes, we're done */
 		if (matching)
-			PG_RETURN_DATUM(BoolGetDatum(true));
+			PG_RETURN_BOOL(true);
 	}
 
-	PG_RETURN_DATUM(BoolGetDatum(false));
+	PG_RETURN_BOOL(false);
 }
 
 /*
@@ -2832,6 +2837,9 @@ brin_minmax_multi_union(PG_FUNCTION_ARGS)
 	neranges = reduce_expanded_ranges(eranges, neranges, distances,
 									  ranges_a->maxvalues,
 									  cmpFn, colloid);
+
+	/* Is the result of reducing expanded ranges correct? */
+	AssertCheckExpandedRanges(bdesc, colloid, attno, attr, eranges, neranges);
 
 	/* update the first range summary */
 	store_expanded_ranges(ranges_a, eranges, neranges);

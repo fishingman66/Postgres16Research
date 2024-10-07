@@ -3,7 +3,7 @@
  * spi.c
  *				Server Programming Interface
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  *
@@ -23,7 +23,6 @@
 #include "commands/trigger.h"
 #include "executor/executor.h"
 #include "executor/spi_priv.h"
-#include "miscadmin.h"
 #include "tcop/pquery.h"
 #include "tcop/utility.h"
 #include "utils/builtins.h"
@@ -547,7 +546,7 @@ AtEOSubXact_SPI(bool isCommit, SubTransactionId mySubid)
 		if (_SPI_current->execSubid >= mySubid)
 		{
 			_SPI_current->execSubid = InvalidSubTransactionId;
-			MemoryContextResetAndDeleteChildren(_SPI_current->execCxt);
+			MemoryContextReset(_SPI_current->execCxt);
 		}
 
 		/* throw away any tuple tables created within current subxact */
@@ -2033,6 +2032,8 @@ SPI_result_code_string(int code)
 			return "SPI_OK_TD_REGISTER";
 		case SPI_OK_MERGE:
 			return "SPI_OK_MERGE";
+		case SPI_OK_MERGE_RETURNING:
+			return "SPI_OK_MERGE_RETURNING";
 	}
 	/* Unrecognized code ... return something useful ... */
 	sprintf(buf, "Unrecognized SPI code %d", code);
@@ -2042,6 +2043,8 @@ SPI_result_code_string(int code)
 /*
  * SPI_plan_get_plan_sources --- get a SPI plan's underlying list of
  * CachedPlanSources.
+ *
+ * CAUTION: there is no check on whether the CachedPlanSources are up-to-date.
  *
  * This is exported so that PL/pgSQL can use it (this beats letting PL/pgSQL
  * look directly into the SPIPlan for itself).  It's not documented in
@@ -2898,7 +2901,10 @@ _SPI_pquery(QueryDesc *queryDesc, bool fire_triggers, uint64 tcount)
 				res = SPI_OK_UPDATE;
 			break;
 		case CMD_MERGE:
-			res = SPI_OK_MERGE;
+			if (queryDesc->plannedstmt->hasReturning)
+				res = SPI_OK_MERGE_RETURNING;
+			else
+				res = SPI_OK_MERGE;
 			break;
 		default:
 			return SPI_ERROR_OPUNKNOWN;
@@ -3095,7 +3101,7 @@ _SPI_end_call(bool use_exec)
 		/* mark Executor context no longer in use */
 		_SPI_current->execSubid = InvalidSubTransactionId;
 		/* and free Executor memory */
-		MemoryContextResetAndDeleteChildren(_SPI_current->execCxt);
+		MemoryContextReset(_SPI_current->execCxt);
 	}
 
 	return 0;

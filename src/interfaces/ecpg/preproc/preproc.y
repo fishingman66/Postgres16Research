@@ -715,6 +715,8 @@ check_declared_list(const char *name)
 %type <str> reloption_elem
 %type <str> alter_identity_column_option_list
 %type <str> alter_identity_column_option
+%type <str> set_statistics_value
+%type <str> set_access_method_name
 %type <str> PartitionBoundSpec
 %type <str> hash_partbound_elem
 %type <str> hash_partbound
@@ -762,6 +764,8 @@ check_declared_list(const char *name)
 %type <str> TableLikeOption
 %type <str> TableConstraint
 %type <str> ConstraintElem
+%type <str> DomainConstraint
+%type <str> DomainConstraintElem
 %type <str> opt_no_inherit
 %type <str> opt_column_list
 %type <str> columnList
@@ -1131,6 +1135,8 @@ check_declared_list(const char *name)
 %type <str> MergeStmt
 %type <str> merge_when_list
 %type <str> merge_when_clause
+%type <str> merge_when_tgt_matched
+%type <str> merge_when_tgt_not_matched
 %type <str> opt_merge_when_condition
 %type <str> merge_update
 %type <str> merge_delete
@@ -1221,6 +1227,12 @@ check_declared_list(const char *name)
 %type <str> xmltable_column_option_el
 %type <str> xml_namespace_list
 %type <str> xml_namespace_el
+%type <str> json_table
+%type <str> json_table_path_name_opt
+%type <str> json_table_column_definition_list
+%type <str> json_table_column_definition
+%type <str> path_opt
+%type <str> json_table_column_path_clause_opt
 %type <str> Typename
 %type <index> opt_array_bounds
 %type <str> SimpleTypename
@@ -1244,6 +1256,7 @@ check_declared_list(const char *name)
 %type <str> opt_timezone
 %type <str> opt_interval
 %type <str> interval_second
+%type <str> JsonType
 %type <str> a_expr
 %type <str> b_expr
 %type <str> c_expr
@@ -1309,10 +1322,19 @@ check_declared_list(const char *name)
 %type <str> indirection
 %type <str> opt_indirection
 %type <str> opt_asymmetric
+%type <str> json_passing_clause_opt
+%type <str> json_arguments
+%type <str> json_argument
+%type <str> json_wrapper_behavior
+%type <str> json_behavior
+%type <str> json_behavior_type
+%type <str> json_behavior_clause_opt
+%type <str> json_on_error_clause_opt
 %type <str> json_value_expr
+%type <str> json_format_clause
 %type <str> json_format_clause_opt
-%type <str> json_encoding_clause_opt
-%type <str> json_output_clause_opt
+%type <str> json_quotes_clause_opt
+%type <str> json_returning_clause_opt
 %type <str> json_predicate_type_constraint
 %type <str> json_key_uniqueness_constraint_opt
 %type <str> json_name_and_value_list
@@ -1515,7 +1537,7 @@ check_declared_list(const char *name)
  CACHE CALL CALLED CASCADE CASCADED CASE CAST CATALOG_P CHAIN CHAR_P
  CHARACTER CHARACTERISTICS CHECK CHECKPOINT CLASS CLOSE
  CLUSTER COALESCE COLLATE COLLATION COLUMN COLUMNS COMMENT COMMENTS COMMIT
- COMMITTED COMPRESSION CONCURRENTLY CONFIGURATION CONFLICT
+ COMMITTED COMPRESSION CONCURRENTLY CONDITIONAL CONFIGURATION CONFLICT
  CONNECTION CONSTRAINT CONSTRAINTS CONTENT_P CONTINUE_P CONVERSION_P COPY
  COST CREATE CROSS CSV CUBE CURRENT_P
  CURRENT_CATALOG CURRENT_DATE CURRENT_ROLE CURRENT_SCHEMA
@@ -1526,8 +1548,8 @@ check_declared_list(const char *name)
  DETACH DICTIONARY DISABLE_P DISCARD DISTINCT DO DOCUMENT_P DOMAIN_P
  DOUBLE_P DROP
 
- EACH ELSE ENABLE_P ENCODING ENCRYPTED END_P ENUM_P ESCAPE EVENT EXCEPT
- EXCLUDE EXCLUDING EXCLUSIVE EXECUTE EXISTS EXPLAIN EXPRESSION
+ EACH ELSE EMPTY_P ENABLE_P ENCODING ENCRYPTED END_P ENUM_P ERROR_P ESCAPE
+ EVENT EXCEPT EXCLUDE EXCLUDING EXCLUSIVE EXECUTE EXISTS EXPLAIN EXPRESSION
  EXTENSION EXTERNAL EXTRACT
 
  FALSE_P FAMILY FETCH FILTER FINALIZE FIRST_P FLOAT_P FOLLOWING FOR
@@ -1542,32 +1564,33 @@ check_declared_list(const char *name)
  INNER_P INOUT INPUT_P INSENSITIVE INSERT INSTEAD INT_P INTEGER
  INTERSECT INTERVAL INTO INVOKER IS ISNULL ISOLATION
 
- JOIN JSON JSON_ARRAY JSON_ARRAYAGG JSON_OBJECT JSON_OBJECTAGG
+ JOIN JSON JSON_ARRAY JSON_ARRAYAGG JSON_EXISTS JSON_OBJECT JSON_OBJECTAGG
+ JSON_QUERY JSON_SCALAR JSON_SERIALIZE JSON_TABLE JSON_VALUE
 
- KEY KEYS
+ KEEP KEY KEYS
 
  LABEL LANGUAGE LARGE_P LAST_P LATERAL_P
  LEADING LEAKPROOF LEAST LEFT LEVEL LIKE LIMIT LISTEN LOAD LOCAL
  LOCALTIME LOCALTIMESTAMP LOCATION LOCK_P LOCKED LOGGED
 
- MAPPING MATCH MATCHED MATERIALIZED MAXVALUE MERGE METHOD
+ MAPPING MATCH MATCHED MATERIALIZED MAXVALUE MERGE MERGE_ACTION METHOD
  MINUTE_P MINVALUE MODE MONTH_P MOVE
 
- NAME_P NAMES NATIONAL NATURAL NCHAR NEW NEXT NFC NFD NFKC NFKD NO NONE
- NORMALIZE NORMALIZED
+ NAME_P NAMES NATIONAL NATURAL NCHAR NESTED NEW NEXT NFC NFD NFKC NFKD NO
+ NONE NORMALIZE NORMALIZED
  NOT NOTHING NOTIFY NOTNULL NOWAIT NULL_P NULLIF
  NULLS_P NUMERIC
 
- OBJECT_P OF OFF OFFSET OIDS OLD ON ONLY OPERATOR OPTION OPTIONS OR
+ OBJECT_P OF OFF OFFSET OIDS OLD OMIT ON ONLY OPERATOR OPTION OPTIONS OR
  ORDER ORDINALITY OTHERS OUT_P OUTER_P
  OVER OVERLAPS OVERLAY OVERRIDING OWNED OWNER
 
- PARALLEL PARAMETER PARSER PARTIAL PARTITION PASSING PASSWORD
- PLACING PLANS POLICY
+ PARALLEL PARAMETER PARSER PARTIAL PARTITION PASSING PASSWORD PATH
+ PLACING PLAN PLANS POLICY
  POSITION PRECEDING PRECISION PRESERVE PREPARE PREPARED PRIMARY
  PRIOR PRIVILEGES PROCEDURAL PROCEDURE PROCEDURES PROGRAM PUBLICATION
 
- QUOTE
+ QUOTE QUOTES
 
  RANGE READ REAL REASSIGN RECHECK RECURSIVE REF_P REFERENCES REFERENCING
  REFRESH REINDEX RELATIVE_P RELEASE RENAME REPEATABLE REPLACE REPLICA
@@ -1577,16 +1600,16 @@ check_declared_list(const char *name)
  SAVEPOINT SCALAR SCHEMA SCHEMAS SCROLL SEARCH SECOND_P SECURITY SELECT
  SEQUENCE SEQUENCES
  SERIALIZABLE SERVER SESSION SESSION_USER SET SETS SETOF SHARE SHOW
- SIMILAR SIMPLE SKIP SMALLINT SNAPSHOT SOME SQL_P STABLE STANDALONE_P
- START STATEMENT STATISTICS STDIN STDOUT STORAGE STORED STRICT_P STRIP_P
+ SIMILAR SIMPLE SKIP SMALLINT SNAPSHOT SOME SOURCE SQL_P STABLE STANDALONE_P
+ START STATEMENT STATISTICS STDIN STDOUT STORAGE STORED STRICT_P STRING_P STRIP_P
  SUBSCRIPTION SUBSTRING SUPPORT SYMMETRIC SYSID SYSTEM_P SYSTEM_USER
 
- TABLE TABLES TABLESAMPLE TABLESPACE TEMP TEMPLATE TEMPORARY TEXT_P THEN
+ TABLE TABLES TABLESAMPLE TABLESPACE TARGET TEMP TEMPLATE TEMPORARY TEXT_P THEN
  TIES TIME TIMESTAMP TO TRAILING TRANSACTION TRANSFORM
  TREAT TRIGGER TRIM TRUE_P
  TRUNCATE TRUSTED TYPE_P TYPES_P
 
- UESCAPE UNBOUNDED UNCOMMITTED UNENCRYPTED UNION UNIQUE UNKNOWN
+ UESCAPE UNBOUNDED UNCONDITIONAL UNCOMMITTED UNENCRYPTED UNION UNIQUE UNKNOWN
  UNLISTEN UNLOGGED UNTIL UPDATE USER USING
 
  VACUUM VALID VALIDATE VALIDATOR VALUE_P VALUES VARCHAR VARIADIC VARYING
@@ -1629,7 +1652,6 @@ check_declared_list(const char *name)
 
 
 
- %nonassoc SET
  %left UNION EXCEPT
  %left INTERSECT
  %left OR
@@ -1641,9 +1663,6 @@ check_declared_list(const char *name)
  %nonassoc ESCAPE
 
 
- %nonassoc UNIQUE JSON
- %nonassoc KEYS OBJECT_P SCALAR VALUE_P
- %nonassoc WITH WITHOUT
 
 
 
@@ -1670,9 +1689,29 @@ check_declared_list(const char *name)
 
 
 
- %nonassoc UNBOUNDED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ %nonassoc UNBOUNDED NESTED
  %nonassoc IDENT
 %nonassoc CSTRING PARTITION RANGE ROWS GROUPS PRECEDING FOLLOWING CUBE ROLLUP
+ SET KEYS OBJECT_P SCALAR VALUE_P WITH WITHOUT PATH
  %left Op OPERATOR
  %left '+' '-'
  %left '*' '/' '%'
@@ -3065,6 +3104,10 @@ SHOW var_name ecpg_into
  { 
  $$ = cat_str(4,mm_strdup("alter"),$2,$3,mm_strdup("set not null"));
 }
+|  ALTER opt_column ColId SET EXPRESSION AS '(' a_expr ')'
+ { 
+ $$ = cat_str(6,mm_strdup("alter"),$2,$3,mm_strdup("set expression as ("),$8,mm_strdup(")"));
+}
 |  ALTER opt_column ColId DROP EXPRESSION
  { 
  $$ = cat_str(4,mm_strdup("alter"),$2,$3,mm_strdup("drop expression"));
@@ -3073,11 +3116,11 @@ SHOW var_name ecpg_into
  { 
  $$ = cat_str(4,mm_strdup("alter"),$2,$3,mm_strdup("drop expression if exists"));
 }
-|  ALTER opt_column ColId SET STATISTICS SignedIconst
+|  ALTER opt_column ColId SET STATISTICS set_statistics_value
  { 
  $$ = cat_str(5,mm_strdup("alter"),$2,$3,mm_strdup("set statistics"),$6);
 }
-|  ALTER opt_column Iconst SET STATISTICS SignedIconst
+|  ALTER opt_column Iconst SET STATISTICS set_statistics_value
  { 
  $$ = cat_str(5,mm_strdup("alter"),$2,$3,mm_strdup("set statistics"),$6);
 }
@@ -3237,7 +3280,7 @@ SHOW var_name ecpg_into
  { 
  $$ = cat_str(2,mm_strdup("owner to"),$3);
 }
-|  SET ACCESS METHOD name
+|  SET ACCESS METHOD set_access_method_name
  { 
  $$ = cat_str(2,mm_strdup("set access method"),$4);
 }
@@ -3413,6 +3456,30 @@ SHOW var_name ecpg_into
 |  SET GENERATED generated_when
  { 
  $$ = cat_str(2,mm_strdup("set generated"),$3);
+}
+;
+
+
+ set_statistics_value:
+ SignedIconst
+ { 
+ $$ = $1;
+}
+|  DEFAULT
+ { 
+ $$ = mm_strdup("default");
+}
+;
+
+
+ set_access_method_name:
+ ColId
+ { 
+ $$ = $1;
+}
+|  DEFAULT
+ { 
+ $$ = mm_strdup("default");
 }
 ;
 
@@ -3644,9 +3711,17 @@ SHOW var_name ecpg_into
  { 
  $$ = cat_str(2,mm_strdup("force not null"),$4);
 }
+|  FORCE NOT NULL_P '*'
+ { 
+ $$ = mm_strdup("force not null *");
+}
 |  FORCE NULL_P columnList
  { 
  $$ = cat_str(2,mm_strdup("force null"),$3);
+}
+|  FORCE NULL_P '*'
+ { 
+ $$ = mm_strdup("force null *");
 }
 |  ENCODING ecpg_sconst
  { 
@@ -3720,6 +3795,10 @@ SHOW var_name ecpg_into
 |  '*'
  { 
  $$ = mm_strdup("*");
+}
+|  DEFAULT
+ { 
+ $$ = mm_strdup("default");
 }
 |  '(' copy_generic_opt_arg_list ')'
  { 
@@ -4183,6 +4262,30 @@ SHOW var_name ecpg_into
 ;
 
 
+ DomainConstraint:
+ CONSTRAINT name DomainConstraintElem
+ { 
+ $$ = cat_str(3,mm_strdup("constraint"),$2,$3);
+}
+|  DomainConstraintElem
+ { 
+ $$ = $1;
+}
+;
+
+
+ DomainConstraintElem:
+ CHECK '(' a_expr ')' ConstraintAttributeSpec
+ { 
+ $$ = cat_str(4,mm_strdup("check ("),$3,mm_strdup(")"),$5);
+}
+|  NOT NULL_P ConstraintAttributeSpec
+ { 
+ $$ = cat_str(2,mm_strdup("not null"),$3);
+}
+;
+
+
  opt_no_inherit:
  NO INHERIT
  { 
@@ -4528,11 +4631,11 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 
 
  AlterStatsStmt:
- ALTER STATISTICS any_name SET STATISTICS SignedIconst
+ ALTER STATISTICS any_name SET STATISTICS set_statistics_value
  { 
  $$ = cat_str(4,mm_strdup("alter statistics"),$3,mm_strdup("set statistics"),$6);
 }
-|  ALTER STATISTICS IF_P EXISTS any_name SET STATISTICS SignedIconst
+|  ALTER STATISTICS IF_P EXISTS any_name SET STATISTICS set_statistics_value
  { 
  $$ = cat_str(4,mm_strdup("alter statistics if exists"),$5,mm_strdup("set statistics"),$8);
 }
@@ -4680,6 +4783,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = cat_str(3,mm_strdup("increment"),$2,$3);
 }
+|  LOGGED
+ { 
+ $$ = mm_strdup("logged");
+}
 |  MAXVALUE NumericOnly
  { 
  $$ = cat_str(2,mm_strdup("maxvalue"),$2);
@@ -4715,6 +4822,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  RESTART opt_with NumericOnly
  { 
  $$ = cat_str(3,mm_strdup("restart"),$2,$3);
+}
+|  UNLOGGED
+ { 
+ $$ = mm_strdup("unlogged");
 }
 ;
 
@@ -5978,6 +6089,11 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  ALTER TYPE_P any_name RENAME VALUE_P ecpg_sconst TO ecpg_sconst
  { 
  $$ = cat_str(6,mm_strdup("alter type"),$3,mm_strdup("rename value"),$6,mm_strdup("to"),$8);
+}
+|  ALTER TYPE_P any_name DROP VALUE_P ecpg_sconst
+ { 
+mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server");
+ $$ = cat_str(4,mm_strdup("alter type"),$3,mm_strdup("drop value"),$6);
 }
 ;
 
@@ -8668,6 +8784,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = cat_str(3,$1,mm_strdup("="),$3);
 }
+|  ColLabel
+ { 
+ $$ = $1;
+}
 ;
 
 
@@ -9479,7 +9599,7 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = cat_str(3,mm_strdup("alter domain"),$3,mm_strdup("set not null"));
 }
-|  ALTER DOMAIN_P any_name ADD_P TableConstraint
+|  ALTER DOMAIN_P any_name ADD_P DomainConstraint
  { 
  $$ = cat_str(4,mm_strdup("alter domain"),$3,mm_strdup("add"),$5);
 }
@@ -9566,13 +9686,17 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 
 
  ClusterStmt:
- CLUSTER opt_verbose qualified_name cluster_index_specification
- { 
- $$ = cat_str(4,mm_strdup("cluster"),$2,$3,$4);
-}
-|  CLUSTER '(' utility_option_list ')' qualified_name cluster_index_specification
+ CLUSTER '(' utility_option_list ')' qualified_name cluster_index_specification
  { 
  $$ = cat_str(5,mm_strdup("cluster ("),$3,mm_strdup(")"),$5,$6);
+}
+|  CLUSTER '(' utility_option_list ')'
+ { 
+ $$ = cat_str(3,mm_strdup("cluster ("),$3,mm_strdup(")"));
+}
+|  CLUSTER opt_verbose qualified_name cluster_index_specification
+ { 
+ $$ = cat_str(4,mm_strdup("cluster"),$2,$3,$4);
 }
 |  CLUSTER opt_verbose
  { 
@@ -10182,9 +10306,9 @@ RETURNING target_list opt_ecpg_into
 
 
  MergeStmt:
- opt_with_clause MERGE INTO relation_expr_opt_alias USING table_ref ON a_expr merge_when_list
+ opt_with_clause MERGE INTO relation_expr_opt_alias USING table_ref ON a_expr merge_when_list returning_clause
  { 
- $$ = cat_str(8,$1,mm_strdup("merge into"),$4,mm_strdup("using"),$6,mm_strdup("on"),$8,$9);
+ $$ = cat_str(9,$1,mm_strdup("merge into"),$4,mm_strdup("using"),$6,mm_strdup("on"),$8,$9,$10);
 }
 ;
 
@@ -10202,25 +10326,49 @@ RETURNING target_list opt_ecpg_into
 
 
  merge_when_clause:
- WHEN MATCHED opt_merge_when_condition THEN merge_update
+ merge_when_tgt_matched opt_merge_when_condition THEN merge_update
  { 
- $$ = cat_str(4,mm_strdup("when matched"),$3,mm_strdup("then"),$5);
+ $$ = cat_str(4,$1,$2,mm_strdup("then"),$4);
 }
-|  WHEN MATCHED opt_merge_when_condition THEN merge_delete
+|  merge_when_tgt_matched opt_merge_when_condition THEN merge_delete
  { 
- $$ = cat_str(4,mm_strdup("when matched"),$3,mm_strdup("then"),$5);
+ $$ = cat_str(4,$1,$2,mm_strdup("then"),$4);
 }
-|  WHEN NOT MATCHED opt_merge_when_condition THEN merge_insert
+|  merge_when_tgt_not_matched opt_merge_when_condition THEN merge_insert
  { 
- $$ = cat_str(4,mm_strdup("when not matched"),$4,mm_strdup("then"),$6);
+ $$ = cat_str(4,$1,$2,mm_strdup("then"),$4);
 }
-|  WHEN MATCHED opt_merge_when_condition THEN DO NOTHING
+|  merge_when_tgt_matched opt_merge_when_condition THEN DO NOTHING
  { 
- $$ = cat_str(3,mm_strdup("when matched"),$3,mm_strdup("then do nothing"));
+ $$ = cat_str(3,$1,$2,mm_strdup("then do nothing"));
 }
-|  WHEN NOT MATCHED opt_merge_when_condition THEN DO NOTHING
+|  merge_when_tgt_not_matched opt_merge_when_condition THEN DO NOTHING
  { 
- $$ = cat_str(3,mm_strdup("when not matched"),$4,mm_strdup("then do nothing"));
+ $$ = cat_str(3,$1,$2,mm_strdup("then do nothing"));
+}
+;
+
+
+ merge_when_tgt_matched:
+ WHEN MATCHED
+ { 
+ $$ = mm_strdup("when matched");
+}
+|  WHEN NOT MATCHED BY SOURCE
+ { 
+ $$ = mm_strdup("when not matched by source");
+}
+;
+
+
+ merge_when_tgt_not_matched:
+ WHEN NOT MATCHED
+ { 
+ $$ = mm_strdup("when not matched");
+}
+|  WHEN NOT MATCHED BY TARGET
+ { 
+ $$ = mm_strdup("when not matched by target");
 }
 ;
 
@@ -11122,6 +11270,14 @@ RETURNING target_list opt_ecpg_into
  { 
  $$ = cat_str(4,mm_strdup("("),$2,mm_strdup(")"),$4);
 }
+|  json_table opt_alias_clause
+ { 
+ $$ = cat_str(2,$1,$2);
+}
+|  LATERAL_P json_table opt_alias_clause
+ { 
+ $$ = cat_str(3,mm_strdup("lateral"),$2,$3);
+}
 ;
 
 
@@ -11517,6 +11673,10 @@ RETURNING target_list opt_ecpg_into
  { 
  $$ = mm_strdup("null");
 }
+|  PATH b_expr
+ { 
+ $$ = cat_str(2,mm_strdup("path"),$2);
+}
 ;
 
 
@@ -11541,6 +11701,87 @@ RETURNING target_list opt_ecpg_into
  { 
  $$ = cat_str(2,mm_strdup("default"),$2);
 }
+;
+
+
+ json_table:
+ JSON_TABLE '(' json_value_expr ',' a_expr json_table_path_name_opt json_passing_clause_opt COLUMNS '(' json_table_column_definition_list ')' json_on_error_clause_opt ')'
+ { 
+ $$ = cat_str(11,mm_strdup("json_table ("),$3,mm_strdup(","),$5,$6,$7,mm_strdup("columns ("),$10,mm_strdup(")"),$12,mm_strdup(")"));
+}
+;
+
+
+ json_table_path_name_opt:
+ AS name
+ { 
+ $$ = cat_str(2,mm_strdup("as"),$2);
+}
+| 
+ { 
+ $$=EMPTY; }
+;
+
+
+ json_table_column_definition_list:
+ json_table_column_definition
+ { 
+ $$ = $1;
+}
+|  json_table_column_definition_list ',' json_table_column_definition
+ { 
+ $$ = cat_str(3,$1,mm_strdup(","),$3);
+}
+;
+
+
+ json_table_column_definition:
+ ColId FOR ORDINALITY
+ { 
+ $$ = cat_str(2,$1,mm_strdup("for ordinality"));
+}
+|  ColId Typename json_table_column_path_clause_opt json_wrapper_behavior json_quotes_clause_opt json_behavior_clause_opt
+ { 
+ $$ = cat_str(6,$1,$2,$3,$4,$5,$6);
+}
+|  ColId Typename json_format_clause json_table_column_path_clause_opt json_wrapper_behavior json_quotes_clause_opt json_behavior_clause_opt
+ { 
+ $$ = cat_str(7,$1,$2,$3,$4,$5,$6,$7);
+}
+|  ColId Typename EXISTS json_table_column_path_clause_opt json_on_error_clause_opt
+ { 
+ $$ = cat_str(5,$1,$2,mm_strdup("exists"),$4,$5);
+}
+|  NESTED path_opt ecpg_sconst COLUMNS '(' json_table_column_definition_list ')'
+ { 
+ $$ = cat_str(6,mm_strdup("nested"),$2,$3,mm_strdup("columns ("),$6,mm_strdup(")"));
+}
+|  NESTED path_opt ecpg_sconst AS name COLUMNS '(' json_table_column_definition_list ')'
+ { 
+ $$ = cat_str(8,mm_strdup("nested"),$2,$3,mm_strdup("as"),$5,mm_strdup("columns ("),$8,mm_strdup(")"));
+}
+;
+
+
+ path_opt:
+ PATH
+ { 
+ $$ = mm_strdup("path");
+}
+| 
+ { 
+ $$=EMPTY; }
+;
+
+
+ json_table_column_path_clause_opt:
+ PATH ecpg_sconst
+ { 
+ $$ = cat_str(2,mm_strdup("path"),$2);
+}
+| 
+ { 
+ $$=EMPTY; }
 ;
 
 
@@ -11627,6 +11868,10 @@ RETURNING target_list opt_ecpg_into
  { 
  $$ = cat_str(4,$1,mm_strdup("("),$3,mm_strdup(")"));
 }
+|  JsonType
+ { 
+ $$ = $1;
+}
 ;
 
 
@@ -11644,6 +11889,10 @@ RETURNING target_list opt_ecpg_into
  $$ = $1;
 }
 |  ConstDatetime
+ { 
+ $$ = $1;
+}
+|  JsonType
  { 
  $$ = $1;
 }
@@ -11965,6 +12214,14 @@ RETURNING target_list opt_ecpg_into
 ;
 
 
+ JsonType:
+ JSON
+ { 
+ $$ = mm_strdup("json");
+}
+;
+
+
  a_expr:
  c_expr
  { 
@@ -11981,6 +12238,10 @@ RETURNING target_list opt_ecpg_into
 |  a_expr AT TIME ZONE a_expr %prec AT
  { 
  $$ = cat_str(3,$1,mm_strdup("at time zone"),$5);
+}
+|  a_expr AT LOCAL %prec AT
+ { 
+ $$ = cat_str(2,$1,mm_strdup("at local"));
 }
 |  '+' a_expr %prec UMINUS
  { 
@@ -12647,25 +12908,53 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = cat_str(3,mm_strdup("json_object ("),$3,mm_strdup(")"));
 }
-|  JSON_OBJECT '(' json_name_and_value_list json_object_constructor_null_clause_opt json_key_uniqueness_constraint_opt json_output_clause_opt ')'
+|  JSON_OBJECT '(' json_name_and_value_list json_object_constructor_null_clause_opt json_key_uniqueness_constraint_opt json_returning_clause_opt ')'
  { 
  $$ = cat_str(6,mm_strdup("json_object ("),$3,$4,$5,$6,mm_strdup(")"));
 }
-|  JSON_OBJECT '(' json_output_clause_opt ')'
+|  JSON_OBJECT '(' json_returning_clause_opt ')'
  { 
  $$ = cat_str(3,mm_strdup("json_object ("),$3,mm_strdup(")"));
 }
-|  JSON_ARRAY '(' json_value_expr_list json_array_constructor_null_clause_opt json_output_clause_opt ')'
+|  JSON_ARRAY '(' json_value_expr_list json_array_constructor_null_clause_opt json_returning_clause_opt ')'
  { 
  $$ = cat_str(5,mm_strdup("json_array ("),$3,$4,$5,mm_strdup(")"));
 }
-|  JSON_ARRAY '(' select_no_parens json_format_clause_opt json_output_clause_opt ')'
+|  JSON_ARRAY '(' select_no_parens json_format_clause_opt json_returning_clause_opt ')'
  { 
  $$ = cat_str(5,mm_strdup("json_array ("),$3,$4,$5,mm_strdup(")"));
 }
-|  JSON_ARRAY '(' json_output_clause_opt ')'
+|  JSON_ARRAY '(' json_returning_clause_opt ')'
  { 
  $$ = cat_str(3,mm_strdup("json_array ("),$3,mm_strdup(")"));
+}
+|  JSON '(' json_value_expr json_key_uniqueness_constraint_opt ')'
+ { 
+ $$ = cat_str(4,mm_strdup("json ("),$3,$4,mm_strdup(")"));
+}
+|  JSON_SCALAR '(' a_expr ')'
+ { 
+ $$ = cat_str(3,mm_strdup("json_scalar ("),$3,mm_strdup(")"));
+}
+|  JSON_SERIALIZE '(' json_value_expr json_returning_clause_opt ')'
+ { 
+ $$ = cat_str(4,mm_strdup("json_serialize ("),$3,$4,mm_strdup(")"));
+}
+|  MERGE_ACTION '(' ')'
+ { 
+ $$ = mm_strdup("merge_action ( )");
+}
+|  JSON_QUERY '(' json_value_expr ',' a_expr json_passing_clause_opt json_returning_clause_opt json_wrapper_behavior json_quotes_clause_opt json_behavior_clause_opt ')'
+ { 
+ $$ = cat_str(10,mm_strdup("json_query ("),$3,mm_strdup(","),$5,$6,$7,$8,$9,$10,mm_strdup(")"));
+}
+|  JSON_EXISTS '(' json_value_expr ',' a_expr json_passing_clause_opt json_on_error_clause_opt ')'
+ { 
+ $$ = cat_str(7,mm_strdup("json_exists ("),$3,mm_strdup(","),$5,$6,$7,mm_strdup(")"));
+}
+|  JSON_VALUE '(' json_value_expr ',' a_expr json_passing_clause_opt json_returning_clause_opt json_behavior_clause_opt ')'
+ { 
+ $$ = cat_str(8,mm_strdup("json_value ("),$3,mm_strdup(","),$5,$6,$7,$8,mm_strdup(")"));
 }
 ;
 
@@ -13505,6 +13794,154 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 ;
 
 
+ json_passing_clause_opt:
+ PASSING json_arguments
+ { 
+ $$ = cat_str(2,mm_strdup("passing"),$2);
+}
+| 
+ { 
+ $$=EMPTY; }
+;
+
+
+ json_arguments:
+ json_argument
+ { 
+ $$ = $1;
+}
+|  json_arguments ',' json_argument
+ { 
+ $$ = cat_str(3,$1,mm_strdup(","),$3);
+}
+;
+
+
+ json_argument:
+ json_value_expr AS ColLabel
+ { 
+ $$ = cat_str(3,$1,mm_strdup("as"),$3);
+}
+;
+
+
+ json_wrapper_behavior:
+ WITHOUT WRAPPER
+ { 
+ $$ = mm_strdup("without wrapper");
+}
+|  WITHOUT ARRAY WRAPPER
+ { 
+ $$ = mm_strdup("without array wrapper");
+}
+|  WITH WRAPPER
+ { 
+ $$ = mm_strdup("with wrapper");
+}
+|  WITH ARRAY WRAPPER
+ { 
+ $$ = mm_strdup("with array wrapper");
+}
+|  WITH CONDITIONAL ARRAY WRAPPER
+ { 
+ $$ = mm_strdup("with conditional array wrapper");
+}
+|  WITH UNCONDITIONAL ARRAY WRAPPER
+ { 
+ $$ = mm_strdup("with unconditional array wrapper");
+}
+|  WITH CONDITIONAL WRAPPER
+ { 
+ $$ = mm_strdup("with conditional wrapper");
+}
+|  WITH UNCONDITIONAL WRAPPER
+ { 
+ $$ = mm_strdup("with unconditional wrapper");
+}
+| 
+ { 
+ $$=EMPTY; }
+;
+
+
+ json_behavior:
+ DEFAULT a_expr
+ { 
+ $$ = cat_str(2,mm_strdup("default"),$2);
+}
+|  json_behavior_type
+ { 
+ $$ = $1;
+}
+;
+
+
+ json_behavior_type:
+ ERROR_P
+ { 
+ $$ = mm_strdup("error");
+}
+|  NULL_P
+ { 
+ $$ = mm_strdup("null");
+}
+|  TRUE_P
+ { 
+ $$ = mm_strdup("true");
+}
+|  FALSE_P
+ { 
+ $$ = mm_strdup("false");
+}
+|  UNKNOWN
+ { 
+ $$ = mm_strdup("unknown");
+}
+|  EMPTY_P ARRAY
+ { 
+ $$ = mm_strdup("empty array");
+}
+|  EMPTY_P OBJECT_P
+ { 
+ $$ = mm_strdup("empty object");
+}
+|  EMPTY_P
+ { 
+ $$ = mm_strdup("empty");
+}
+;
+
+
+ json_behavior_clause_opt:
+ json_behavior ON EMPTY_P
+ { 
+ $$ = cat_str(2,$1,mm_strdup("on empty"));
+}
+|  json_behavior ON ERROR_P
+ { 
+ $$ = cat_str(2,$1,mm_strdup("on error"));
+}
+|  json_behavior ON EMPTY_P json_behavior ON ERROR_P
+ { 
+ $$ = cat_str(4,$1,mm_strdup("on empty"),$4,mm_strdup("on error"));
+}
+| 
+ { 
+ $$=EMPTY; }
+;
+
+
+ json_on_error_clause_opt:
+ json_behavior ON ERROR_P
+ { 
+ $$ = cat_str(2,$1,mm_strdup("on error"));
+}
+| 
+ { 
+ $$=EMPTY; }
+;
+
+
  json_value_expr:
  a_expr json_format_clause_opt
  { 
@@ -13513,10 +13950,22 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 ;
 
 
+ json_format_clause:
+ FORMAT_LA JSON ENCODING name
+ { 
+ $$ = cat_str(2,mm_strdup("format json encoding"),$4);
+}
+|  FORMAT_LA JSON
+ { 
+ $$ = mm_strdup("format json");
+}
+;
+
+
  json_format_clause_opt:
- FORMAT_LA JSON json_encoding_clause_opt
+ json_format_clause
  { 
- $$ = cat_str(2,mm_strdup("format json"),$3);
+ $$ = $1;
 }
 | 
  { 
@@ -13524,10 +13973,22 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 ;
 
 
- json_encoding_clause_opt:
- ENCODING name
+ json_quotes_clause_opt:
+ KEEP QUOTES ON SCALAR STRING_P
  { 
- $$ = cat_str(2,mm_strdup("encoding"),$2);
+ $$ = mm_strdup("keep quotes on scalar string");
+}
+|  KEEP QUOTES
+ { 
+ $$ = mm_strdup("keep quotes");
+}
+|  OMIT QUOTES ON SCALAR STRING_P
+ { 
+ $$ = mm_strdup("omit quotes on scalar string");
+}
+|  OMIT QUOTES
+ { 
+ $$ = mm_strdup("omit quotes");
 }
 | 
  { 
@@ -13535,7 +13996,7 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 ;
 
 
- json_output_clause_opt:
+ json_returning_clause_opt:
  RETURNING Typename json_format_clause_opt
  { 
  $$ = cat_str(3,mm_strdup("returning"),$2,$3);
@@ -13547,7 +14008,7 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 
 
  json_predicate_type_constraint:
- JSON
+ JSON %prec UNBOUNDED
  { 
  $$ = mm_strdup("json");
 }
@@ -13575,7 +14036,7 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("with unique keys");
 }
-|  WITH UNIQUE
+|  WITH UNIQUE %prec UNBOUNDED
  { 
  $$ = mm_strdup("with unique");
 }
@@ -13583,11 +14044,11 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("without unique keys");
 }
-|  WITHOUT UNIQUE
+|  WITHOUT UNIQUE %prec UNBOUNDED
  { 
  $$ = mm_strdup("without unique");
 }
-|  %prec KEYS
+|  %prec UNBOUNDED
  { 
  $$=EMPTY; }
 ;
@@ -13660,11 +14121,11 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 
 
  json_aggregate_func:
- JSON_OBJECTAGG '(' json_name_and_value json_object_constructor_null_clause_opt json_key_uniqueness_constraint_opt json_output_clause_opt ')'
+ JSON_OBJECTAGG '(' json_name_and_value json_object_constructor_null_clause_opt json_key_uniqueness_constraint_opt json_returning_clause_opt ')'
  { 
  $$ = cat_str(6,mm_strdup("json_objectagg ("),$3,$4,$5,$6,mm_strdup(")"));
 }
-|  JSON_ARRAYAGG '(' json_value_expr json_array_aggregate_order_by_clause_opt json_array_constructor_null_clause_opt json_output_clause_opt ')'
+|  JSON_ARRAYAGG '(' json_value_expr json_array_aggregate_order_by_clause_opt json_array_constructor_null_clause_opt json_returning_clause_opt ')'
  { 
  $$ = cat_str(6,mm_strdup("json_arrayagg ("),$3,$4,$5,$6,mm_strdup(")"));
 }
@@ -14119,6 +14580,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("compression");
 }
+|  CONDITIONAL
+ { 
+ $$ = mm_strdup("conditional");
+}
 |  CONFIGURATION
  { 
  $$ = mm_strdup("configuration");
@@ -14251,6 +14716,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("each");
 }
+|  EMPTY_P
+ { 
+ $$ = mm_strdup("empty");
+}
 |  ENABLE_P
  { 
  $$ = mm_strdup("enable");
@@ -14266,6 +14735,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  ENUM_P
  { 
  $$ = mm_strdup("enum");
+}
+|  ERROR_P
+ { 
+ $$ = mm_strdup("error");
 }
 |  ESCAPE
  { 
@@ -14455,9 +14928,9 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("isolation");
 }
-|  JSON
+|  KEEP
  { 
- $$ = mm_strdup("json");
+ $$ = mm_strdup("keep");
 }
 |  KEY
  { 
@@ -14567,6 +15040,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("names");
 }
+|  NESTED
+ { 
+ $$ = mm_strdup("nested");
+}
 |  NEW
  { 
  $$ = mm_strdup("new");
@@ -14635,6 +15112,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("old");
 }
+|  OMIT
+ { 
+ $$ = mm_strdup("omit");
+}
 |  OPERATOR
  { 
  $$ = mm_strdup("operator");
@@ -14699,6 +15180,14 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("password");
 }
+|  PATH
+ { 
+ $$ = mm_strdup("path");
+}
+|  PLAN
+ { 
+ $$ = mm_strdup("plan");
+}
 |  PLANS
  { 
  $$ = mm_strdup("plans");
@@ -14754,6 +15243,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  QUOTE
  { 
  $$ = mm_strdup("quote");
+}
+|  QUOTES
+ { 
+ $$ = mm_strdup("quotes");
 }
 |  RANGE
  { 
@@ -14943,6 +15436,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("snapshot");
 }
+|  SOURCE
+ { 
+ $$ = mm_strdup("source");
+}
 |  SQL_P
  { 
  $$ = mm_strdup("sql");
@@ -14987,6 +15484,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("strict");
 }
+|  STRING_P
+ { 
+ $$ = mm_strdup("string");
+}
 |  STRIP_P
  { 
  $$ = mm_strdup("strip");
@@ -15014,6 +15515,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  TABLESPACE
  { 
  $$ = mm_strdup("tablespace");
+}
+|  TARGET
+ { 
+ $$ = mm_strdup("target");
 }
 |  TEMP
  { 
@@ -15074,6 +15579,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  UNCOMMITTED
  { 
  $$ = mm_strdup("uncommitted");
+}
+|  UNCONDITIONAL
+ { 
+ $$ = mm_strdup("unconditional");
 }
 |  UNENCRYPTED
  { 
@@ -15243,6 +15752,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("interval");
 }
+|  JSON
+ { 
+ $$ = mm_strdup("json");
+}
 |  JSON_ARRAY
  { 
  $$ = mm_strdup("json_array");
@@ -15250,6 +15763,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  JSON_ARRAYAGG
  { 
  $$ = mm_strdup("json_arrayagg");
+}
+|  JSON_EXISTS
+ { 
+ $$ = mm_strdup("json_exists");
 }
 |  JSON_OBJECT
  { 
@@ -15259,9 +15776,33 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("json_objectagg");
 }
+|  JSON_QUERY
+ { 
+ $$ = mm_strdup("json_query");
+}
+|  JSON_SCALAR
+ { 
+ $$ = mm_strdup("json_scalar");
+}
+|  JSON_SERIALIZE
+ { 
+ $$ = mm_strdup("json_serialize");
+}
+|  JSON_TABLE
+ { 
+ $$ = mm_strdup("json_table");
+}
+|  JSON_VALUE
+ { 
+ $$ = mm_strdup("json_value");
+}
 |  LEAST
  { 
  $$ = mm_strdup("least");
+}
+|  MERGE_ACTION
+ { 
+ $$ = mm_strdup("merge_action");
 }
 |  NATIONAL
  { 
@@ -16051,6 +16592,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("concurrently");
 }
+|  CONDITIONAL
+ { 
+ $$ = mm_strdup("conditional");
+}
 |  CONFIGURATION
  { 
  $$ = mm_strdup("configuration");
@@ -16259,6 +16804,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("else");
 }
+|  EMPTY_P
+ { 
+ $$ = mm_strdup("empty");
+}
 |  ENABLE_P
  { 
  $$ = mm_strdup("enable");
@@ -16278,6 +16827,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  ENUM_P
  { 
  $$ = mm_strdup("enum");
+}
+|  ERROR_P
+ { 
+ $$ = mm_strdup("error");
 }
 |  ESCAPE
  { 
@@ -16555,6 +17108,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("json_arrayagg");
 }
+|  JSON_EXISTS
+ { 
+ $$ = mm_strdup("json_exists");
+}
 |  JSON_OBJECT
  { 
  $$ = mm_strdup("json_object");
@@ -16562,6 +17119,30 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  JSON_OBJECTAGG
  { 
  $$ = mm_strdup("json_objectagg");
+}
+|  JSON_QUERY
+ { 
+ $$ = mm_strdup("json_query");
+}
+|  JSON_SCALAR
+ { 
+ $$ = mm_strdup("json_scalar");
+}
+|  JSON_SERIALIZE
+ { 
+ $$ = mm_strdup("json_serialize");
+}
+|  JSON_TABLE
+ { 
+ $$ = mm_strdup("json_table");
+}
+|  JSON_VALUE
+ { 
+ $$ = mm_strdup("json_value");
+}
+|  KEEP
+ { 
+ $$ = mm_strdup("keep");
 }
 |  KEY
  { 
@@ -16675,6 +17256,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("merge");
 }
+|  MERGE_ACTION
+ { 
+ $$ = mm_strdup("merge_action");
+}
 |  METHOD
  { 
  $$ = mm_strdup("method");
@@ -16710,6 +17295,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  NCHAR
  { 
  $$ = mm_strdup("nchar");
+}
+|  NESTED
+ { 
+ $$ = mm_strdup("nested");
 }
 |  NEW
  { 
@@ -16803,6 +17392,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("old");
 }
+|  OMIT
+ { 
+ $$ = mm_strdup("omit");
+}
 |  ONLY
  { 
  $$ = mm_strdup("only");
@@ -16883,9 +17476,17 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("password");
 }
+|  PATH
+ { 
+ $$ = mm_strdup("path");
+}
 |  PLACING
  { 
  $$ = mm_strdup("placing");
+}
+|  PLAN
+ { 
+ $$ = mm_strdup("plan");
 }
 |  PLANS
  { 
@@ -16950,6 +17551,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  QUOTE
  { 
  $$ = mm_strdup("quote");
+}
+|  QUOTES
+ { 
+ $$ = mm_strdup("quotes");
 }
 |  RANGE
  { 
@@ -17179,6 +17784,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
  { 
  $$ = mm_strdup("some");
 }
+|  SOURCE
+ { 
+ $$ = mm_strdup("source");
+}
 |  SQL_P
  { 
  $$ = mm_strdup("sql");
@@ -17222,6 +17831,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  STRICT_P
  { 
  $$ = mm_strdup("strict");
+}
+|  STRING_P
+ { 
+ $$ = mm_strdup("string");
 }
 |  STRIP_P
  { 
@@ -17270,6 +17883,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  TABLESPACE
  { 
  $$ = mm_strdup("tablespace");
+}
+|  TARGET
+ { 
+ $$ = mm_strdup("target");
 }
 |  TEMP
  { 
@@ -17358,6 +17975,10 @@ mmerror(PARSE_ERROR, ET_WARNING, "unsupported feature will be passed to server")
 |  UNCOMMITTED
  { 
  $$ = mm_strdup("uncommitted");
+}
+|  UNCONDITIONAL
+ { 
+ $$ = mm_strdup("unconditional");
 }
 |  UNENCRYPTED
  { 
@@ -18179,6 +18800,34 @@ var_type:	simple_type
 			$$.type_dimension = mm_strdup("-1");
 			$$.type_index = mm_strdup("-1");
 			$$.type_sizeof = NULL;
+		}
+		| STRING_P
+		{
+			if (INFORMIX_MODE)
+			{
+				/* In Informix mode, "string" is automatically a typedef */
+				$$.type_enum = ECPGt_string;
+				$$.type_str = mm_strdup("char");
+				$$.type_dimension = mm_strdup("-1");
+				$$.type_index = mm_strdup("-1");
+				$$.type_sizeof = NULL;
+			}
+			else
+			{
+				/* Otherwise, legal only if user typedef'ed it */
+				struct typedefs *this = get_typedef("string", false);
+
+				$$.type_str = (this->type->type_enum == ECPGt_varchar || this->type->type_enum == ECPGt_bytea) ? EMPTY : mm_strdup(this->name);
+				$$.type_enum = this->type->type_enum;
+				$$.type_dimension = this->type->type_dimension;
+				$$.type_index = this->type->type_index;
+				if (this->type->type_sizeof && strlen(this->type->type_sizeof) != 0)
+					$$.type_sizeof = this->type->type_sizeof;
+				else
+					$$.type_sizeof = cat_str(3, mm_strdup("sizeof("), mm_strdup(this->name), mm_strdup(")"));
+
+				struct_member_list[struct_level] = ECPGstruct_member_dup(this->struct_member_list);
+			}
 		}
 		| INTERVAL ecpg_interval
 		{

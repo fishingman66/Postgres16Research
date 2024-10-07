@@ -80,7 +80,7 @@
  *
  * repl_gram.y				- Parser for the replication commands
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  *
@@ -155,51 +155,55 @@ enum yysymbol_kind_t
   YYSYMBOL_K_START_REPLICATION = 11,       /* K_START_REPLICATION  */
   YYSYMBOL_K_CREATE_REPLICATION_SLOT = 12, /* K_CREATE_REPLICATION_SLOT  */
   YYSYMBOL_K_DROP_REPLICATION_SLOT = 13,   /* K_DROP_REPLICATION_SLOT  */
-  YYSYMBOL_K_TIMELINE_HISTORY = 14,        /* K_TIMELINE_HISTORY  */
-  YYSYMBOL_K_WAIT = 15,                    /* K_WAIT  */
-  YYSYMBOL_K_TIMELINE = 16,                /* K_TIMELINE  */
-  YYSYMBOL_K_PHYSICAL = 17,                /* K_PHYSICAL  */
-  YYSYMBOL_K_LOGICAL = 18,                 /* K_LOGICAL  */
-  YYSYMBOL_K_SLOT = 19,                    /* K_SLOT  */
-  YYSYMBOL_K_RESERVE_WAL = 20,             /* K_RESERVE_WAL  */
-  YYSYMBOL_K_TEMPORARY = 21,               /* K_TEMPORARY  */
-  YYSYMBOL_K_TWO_PHASE = 22,               /* K_TWO_PHASE  */
-  YYSYMBOL_K_EXPORT_SNAPSHOT = 23,         /* K_EXPORT_SNAPSHOT  */
-  YYSYMBOL_K_NOEXPORT_SNAPSHOT = 24,       /* K_NOEXPORT_SNAPSHOT  */
-  YYSYMBOL_K_USE_SNAPSHOT = 25,            /* K_USE_SNAPSHOT  */
-  YYSYMBOL_26_ = 26,                       /* ';'  */
-  YYSYMBOL_27_ = 27,                       /* '.'  */
-  YYSYMBOL_28_ = 28,                       /* '('  */
-  YYSYMBOL_29_ = 29,                       /* ')'  */
-  YYSYMBOL_30_ = 30,                       /* ','  */
-  YYSYMBOL_YYACCEPT = 31,                  /* $accept  */
-  YYSYMBOL_firstcmd = 32,                  /* firstcmd  */
-  YYSYMBOL_opt_semicolon = 33,             /* opt_semicolon  */
-  YYSYMBOL_command = 34,                   /* command  */
-  YYSYMBOL_identify_system = 35,           /* identify_system  */
-  YYSYMBOL_read_replication_slot = 36,     /* read_replication_slot  */
-  YYSYMBOL_show = 37,                      /* show  */
-  YYSYMBOL_var_name = 38,                  /* var_name  */
-  YYSYMBOL_base_backup = 39,               /* base_backup  */
-  YYSYMBOL_create_replication_slot = 40,   /* create_replication_slot  */
-  YYSYMBOL_create_slot_options = 41,       /* create_slot_options  */
-  YYSYMBOL_create_slot_legacy_opt_list = 42, /* create_slot_legacy_opt_list  */
-  YYSYMBOL_create_slot_legacy_opt = 43,    /* create_slot_legacy_opt  */
-  YYSYMBOL_drop_replication_slot = 44,     /* drop_replication_slot  */
-  YYSYMBOL_start_replication = 45,         /* start_replication  */
-  YYSYMBOL_start_logical_replication = 46, /* start_logical_replication  */
-  YYSYMBOL_timeline_history = 47,          /* timeline_history  */
-  YYSYMBOL_opt_physical = 48,              /* opt_physical  */
-  YYSYMBOL_opt_temporary = 49,             /* opt_temporary  */
-  YYSYMBOL_opt_slot = 50,                  /* opt_slot  */
-  YYSYMBOL_opt_timeline = 51,              /* opt_timeline  */
-  YYSYMBOL_plugin_options = 52,            /* plugin_options  */
-  YYSYMBOL_plugin_opt_list = 53,           /* plugin_opt_list  */
-  YYSYMBOL_plugin_opt_elem = 54,           /* plugin_opt_elem  */
-  YYSYMBOL_plugin_opt_arg = 55,            /* plugin_opt_arg  */
-  YYSYMBOL_generic_option_list = 56,       /* generic_option_list  */
-  YYSYMBOL_generic_option = 57,            /* generic_option  */
-  YYSYMBOL_ident_or_keyword = 58           /* ident_or_keyword  */
+  YYSYMBOL_K_ALTER_REPLICATION_SLOT = 14,  /* K_ALTER_REPLICATION_SLOT  */
+  YYSYMBOL_K_TIMELINE_HISTORY = 15,        /* K_TIMELINE_HISTORY  */
+  YYSYMBOL_K_WAIT = 16,                    /* K_WAIT  */
+  YYSYMBOL_K_TIMELINE = 17,                /* K_TIMELINE  */
+  YYSYMBOL_K_PHYSICAL = 18,                /* K_PHYSICAL  */
+  YYSYMBOL_K_LOGICAL = 19,                 /* K_LOGICAL  */
+  YYSYMBOL_K_SLOT = 20,                    /* K_SLOT  */
+  YYSYMBOL_K_RESERVE_WAL = 21,             /* K_RESERVE_WAL  */
+  YYSYMBOL_K_TEMPORARY = 22,               /* K_TEMPORARY  */
+  YYSYMBOL_K_TWO_PHASE = 23,               /* K_TWO_PHASE  */
+  YYSYMBOL_K_EXPORT_SNAPSHOT = 24,         /* K_EXPORT_SNAPSHOT  */
+  YYSYMBOL_K_NOEXPORT_SNAPSHOT = 25,       /* K_NOEXPORT_SNAPSHOT  */
+  YYSYMBOL_K_USE_SNAPSHOT = 26,            /* K_USE_SNAPSHOT  */
+  YYSYMBOL_K_UPLOAD_MANIFEST = 27,         /* K_UPLOAD_MANIFEST  */
+  YYSYMBOL_28_ = 28,                       /* ';'  */
+  YYSYMBOL_29_ = 29,                       /* '.'  */
+  YYSYMBOL_30_ = 30,                       /* '('  */
+  YYSYMBOL_31_ = 31,                       /* ')'  */
+  YYSYMBOL_32_ = 32,                       /* ','  */
+  YYSYMBOL_YYACCEPT = 33,                  /* $accept  */
+  YYSYMBOL_firstcmd = 34,                  /* firstcmd  */
+  YYSYMBOL_opt_semicolon = 35,             /* opt_semicolon  */
+  YYSYMBOL_command = 36,                   /* command  */
+  YYSYMBOL_identify_system = 37,           /* identify_system  */
+  YYSYMBOL_read_replication_slot = 38,     /* read_replication_slot  */
+  YYSYMBOL_show = 39,                      /* show  */
+  YYSYMBOL_var_name = 40,                  /* var_name  */
+  YYSYMBOL_base_backup = 41,               /* base_backup  */
+  YYSYMBOL_create_replication_slot = 42,   /* create_replication_slot  */
+  YYSYMBOL_create_slot_options = 43,       /* create_slot_options  */
+  YYSYMBOL_create_slot_legacy_opt_list = 44, /* create_slot_legacy_opt_list  */
+  YYSYMBOL_create_slot_legacy_opt = 45,    /* create_slot_legacy_opt  */
+  YYSYMBOL_drop_replication_slot = 46,     /* drop_replication_slot  */
+  YYSYMBOL_alter_replication_slot = 47,    /* alter_replication_slot  */
+  YYSYMBOL_start_replication = 48,         /* start_replication  */
+  YYSYMBOL_start_logical_replication = 49, /* start_logical_replication  */
+  YYSYMBOL_timeline_history = 50,          /* timeline_history  */
+  YYSYMBOL_upload_manifest = 51,           /* upload_manifest  */
+  YYSYMBOL_opt_physical = 52,              /* opt_physical  */
+  YYSYMBOL_opt_temporary = 53,             /* opt_temporary  */
+  YYSYMBOL_opt_slot = 54,                  /* opt_slot  */
+  YYSYMBOL_opt_timeline = 55,              /* opt_timeline  */
+  YYSYMBOL_plugin_options = 56,            /* plugin_options  */
+  YYSYMBOL_plugin_opt_list = 57,           /* plugin_opt_list  */
+  YYSYMBOL_plugin_opt_elem = 58,           /* plugin_opt_elem  */
+  YYSYMBOL_plugin_opt_arg = 59,            /* plugin_opt_arg  */
+  YYSYMBOL_generic_option_list = 60,       /* generic_option_list  */
+  YYSYMBOL_generic_option = 61,            /* generic_option  */
+  YYSYMBOL_ident_or_keyword = 62           /* ident_or_keyword  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -525,21 +529,21 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  29
+#define YYFINAL  34
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   71
+#define YYLAST   80
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  31
+#define YYNTOKENS  33
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  28
+#define YYNNTS  30
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  76
+#define YYNRULES  82
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  99
+#define YYNSTATES  109
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   280
+#define YYMAXUTOK   282
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -557,8 +561,8 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      28,    29,     2,     2,    30,     2,    27,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,    26,
+      30,    31,     2,     2,    32,     2,    29,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    28,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -581,21 +585,22 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25
+      25,    26,    27
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    97,    97,   103,   104,   108,   109,   110,   111,   112,
-     113,   114,   115,   116,   123,   133,   145,   152,   153,   161,
-     167,   176,   187,   201,   202,   206,   209,   213,   218,   223,
-     228,   233,   242,   250,   264,   279,   294,   311,   312,   316,
-     317,   321,   324,   328,   336,   341,   342,   346,   350,   357,
-     364,   365,   369,   371,   376,   380,   384,   388,   395,   396,
-     397,   398,   399,   400,   401,   402,   403,   404,   405,   406,
-     407,   408,   409,   410,   411,   412,   413
+       0,   100,   100,   106,   107,   111,   112,   113,   114,   115,
+     116,   117,   118,   119,   120,   121,   128,   138,   150,   157,
+     158,   166,   172,   181,   192,   206,   207,   211,   214,   218,
+     223,   228,   233,   238,   247,   255,   267,   281,   296,   311,
+     329,   337,   338,   342,   343,   347,   350,   354,   362,   367,
+     368,   372,   376,   383,   390,   391,   395,   397,   402,   406,
+     410,   414,   421,   422,   423,   424,   425,   426,   427,   428,
+     429,   430,   431,   432,   433,   434,   435,   436,   437,   438,
+     439,   440,   441
 };
 #endif
 
@@ -615,17 +620,18 @@ static const char *const yytname[] =
   "UCONST", "RECPTR", "K_BASE_BACKUP", "K_IDENTIFY_SYSTEM",
   "K_READ_REPLICATION_SLOT", "K_SHOW", "K_START_REPLICATION",
   "K_CREATE_REPLICATION_SLOT", "K_DROP_REPLICATION_SLOT",
-  "K_TIMELINE_HISTORY", "K_WAIT", "K_TIMELINE", "K_PHYSICAL", "K_LOGICAL",
-  "K_SLOT", "K_RESERVE_WAL", "K_TEMPORARY", "K_TWO_PHASE",
-  "K_EXPORT_SNAPSHOT", "K_NOEXPORT_SNAPSHOT", "K_USE_SNAPSHOT", "';'",
-  "'.'", "'('", "')'", "','", "$accept", "firstcmd", "opt_semicolon",
-  "command", "identify_system", "read_replication_slot", "show",
-  "var_name", "base_backup", "create_replication_slot",
-  "create_slot_options", "create_slot_legacy_opt_list",
-  "create_slot_legacy_opt", "drop_replication_slot", "start_replication",
-  "start_logical_replication", "timeline_history", "opt_physical",
-  "opt_temporary", "opt_slot", "opt_timeline", "plugin_options",
-  "plugin_opt_list", "plugin_opt_elem", "plugin_opt_arg",
+  "K_ALTER_REPLICATION_SLOT", "K_TIMELINE_HISTORY", "K_WAIT", "K_TIMELINE",
+  "K_PHYSICAL", "K_LOGICAL", "K_SLOT", "K_RESERVE_WAL", "K_TEMPORARY",
+  "K_TWO_PHASE", "K_EXPORT_SNAPSHOT", "K_NOEXPORT_SNAPSHOT",
+  "K_USE_SNAPSHOT", "K_UPLOAD_MANIFEST", "';'", "'.'", "'('", "')'", "','",
+  "$accept", "firstcmd", "opt_semicolon", "command", "identify_system",
+  "read_replication_slot", "show", "var_name", "base_backup",
+  "create_replication_slot", "create_slot_options",
+  "create_slot_legacy_opt_list", "create_slot_legacy_opt",
+  "drop_replication_slot", "alter_replication_slot", "start_replication",
+  "start_logical_replication", "timeline_history", "upload_manifest",
+  "opt_physical", "opt_temporary", "opt_slot", "opt_timeline",
+  "plugin_options", "plugin_opt_list", "plugin_opt_elem", "plugin_opt_arg",
   "generic_option_list", "generic_option", "ident_or_keyword", YY_NULLPTR
 };
 
@@ -636,7 +642,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-29)
+#define YYPACT_NINF (-36)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -650,16 +656,17 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      15,   -23,   -29,    27,    27,    26,    42,    43,    44,    48,
-      24,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
-      -4,   -29,    25,    25,    47,    36,    34,    39,   -29,   -29,
-     -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
-     -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
-     -29,   -28,   -29,    33,    52,    40,   -29,    51,   -29,    22,
-     -29,   -29,    -4,   -29,   -29,   -29,   -29,    53,    45,    32,
-      58,   -29,    35,    59,   -29,    -4,   -29,    10,    32,    61,
-     -29,   -29,    12,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
-      63,    14,   -29,   -29,   -29,   -29,   -29,    61,   -29
+      17,   -25,   -36,    31,    31,    23,    50,    51,    52,    53,
+     -36,    57,    32,   -36,   -36,   -36,   -36,   -36,   -36,   -36,
+     -36,   -36,   -36,   -36,    -4,   -36,    30,    30,    58,    43,
+      41,    48,    35,   -36,   -36,   -36,   -36,   -36,   -36,   -36,
+     -36,   -36,   -36,   -36,   -36,   -36,   -36,   -36,   -36,   -36,
+     -36,   -36,   -36,   -36,   -36,   -36,   -36,   -36,   -30,   -36,
+      37,    62,    49,   -36,    61,   -36,    27,   -36,    -4,   -36,
+      -4,   -36,   -36,   -36,   -36,    63,    54,    40,    68,    16,
+     -36,    44,    70,   -36,    -4,   -36,    13,    40,   -36,    69,
+     -36,   -36,    19,   -36,   -36,   -36,   -36,   -36,   -36,   -36,
+      73,    21,   -36,   -36,   -36,   -36,   -36,    69,   -36
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -667,32 +674,33 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,    20,    14,     0,     0,    42,     0,     0,     0,     0,
-       4,     5,    11,    13,     6,     9,    10,     7,     8,    12,
-       0,    17,    15,    16,     0,    38,    40,    32,    36,     1,
-       3,     2,    58,    59,    60,    61,    62,    63,    64,    65,
-      66,    67,    68,    69,    70,    71,    72,    73,    74,    75,
-      76,     0,    53,    54,     0,    41,    37,     0,    39,     0,
-      33,    19,     0,    56,    55,    57,    18,     0,    44,    26,
-       0,    52,    46,     0,    34,     0,    21,    24,    26,     0,
-      35,    43,     0,    30,    31,    27,    28,    29,    25,    22,
-      51,     0,    47,    23,    50,    49,    45,     0,    48
+       0,    22,    16,     0,     0,    46,     0,     0,     0,     0,
+      40,     0,     4,     5,    12,    14,     6,     9,    10,    11,
+       7,     8,    13,    15,     0,    19,    17,    18,     0,    42,
+      44,    34,     0,    39,     1,     3,     2,    62,    63,    64,
+      65,    66,    67,    68,    69,    70,    71,    72,    73,    74,
+      75,    76,    77,    78,    79,    80,    81,    82,     0,    57,
+      58,     0,    45,    41,     0,    43,     0,    35,     0,    21,
+       0,    60,    59,    61,    20,     0,    48,    28,     0,     0,
+      56,    50,     0,    37,     0,    23,    26,    28,    36,     0,
+      38,    47,     0,    32,    33,    29,    30,    31,    27,    24,
+      55,     0,    51,    25,    54,    53,    49,     0,    52
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -29,   -29,   -29,   -29,   -29,   -29,   -29,    64,   -29,   -29,
-     -11,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
-     -29,   -29,   -29,   -27,   -29,    -6,     9,   -29
+     -36,   -36,   -36,   -36,   -36,   -36,   -36,    74,   -36,   -36,
+     -10,   -36,   -36,   -36,   -36,   -36,   -36,   -36,   -36,   -36,
+     -36,   -36,   -36,   -36,   -36,   -28,   -36,   -35,    10,   -36
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     9,    31,    10,    11,    12,    13,    22,    14,    15,
-      76,    77,    88,    16,    17,    18,    19,    57,    59,    25,
-      74,    80,    91,    92,    95,    51,    52,    53
+       0,    11,    36,    12,    13,    14,    15,    26,    16,    17,
+      85,    86,    98,    18,    19,    20,    21,    22,    23,    64,
+      66,    29,    83,    90,   101,   102,   105,    58,    59,    60
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -700,68 +708,73 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      32,    61,    62,    33,    34,    20,    35,    36,    37,    38,
-      39,    40,    41,    42,    43,    44,    45,    46,    47,    48,
-      49,    50,     1,     2,     3,     4,     5,     6,     7,     8,
-      83,    21,    84,    85,    86,    87,    63,    64,    65,    69,
-      70,    93,    62,    96,    97,    24,    26,    27,    29,    28,
-      30,    55,    54,    56,    60,    58,    66,    68,    67,    72,
-      75,    73,    78,    79,    81,    90,    94,    89,    23,    82,
-      98,    71
+      37,    69,    70,    38,    39,    24,    40,    41,    42,    43,
+      44,    45,    46,    47,    48,    49,    50,    51,    52,    53,
+      54,    55,    56,    57,     1,     2,     3,     4,     5,     6,
+       7,     8,     9,    79,    93,    25,    94,    95,    96,    97,
+      71,    72,    73,    28,    10,    77,    78,    88,    70,    92,
+     103,    70,   106,   107,    30,    31,    32,    34,    33,    61,
+      35,    63,    62,    65,    67,    68,    74,    76,    75,    81,
+      84,    82,    87,   100,    89,    91,   104,    99,    27,   108,
+      80
 };
 
 static const yytype_int8 yycheck[] =
 {
-       4,    29,    30,     7,     8,    28,    10,    11,    12,    13,
+       4,    31,    32,     7,     8,    30,    10,    11,    12,    13,
       14,    15,    16,    17,    18,    19,    20,    21,    22,    23,
-      24,    25,     7,     8,     9,    10,    11,    12,    13,    14,
-      20,     4,    22,    23,    24,    25,     3,     4,     5,    17,
-      18,    29,    30,    29,    30,    19,     4,     4,     0,     5,
-      26,     4,    27,    17,    15,    21,     4,     6,    18,     6,
-      28,    16,     4,    28,     5,     4,     3,    78,     4,    75,
-      97,    62
+      24,    25,    26,    27,     7,     8,     9,    10,    11,    12,
+      13,    14,    15,    68,    21,     4,    23,    24,    25,    26,
+       3,     4,     5,    20,    27,    18,    19,    31,    32,    84,
+      31,    32,    31,    32,     4,     4,     4,     0,     5,    29,
+      28,    18,     4,    22,    16,    30,     4,     6,    19,     6,
+      30,    17,     4,     4,    30,     5,     3,    87,     4,   107,
+      70
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     7,     8,     9,    10,    11,    12,    13,    14,    32,
-      34,    35,    36,    37,    39,    40,    44,    45,    46,    47,
-      28,     4,    38,    38,    19,    50,     4,     4,     5,     0,
-      26,    33,     4,     7,     8,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    56,    57,    58,    27,     4,    17,    48,    21,    49,
-      15,    29,    30,     3,     4,     5,     4,    18,     6,    17,
-      18,    57,     6,    16,    51,    28,    41,    42,     4,    28,
-      52,     5,    56,    20,    22,    23,    24,    25,    43,    41,
-       4,    53,    54,    29,     3,    55,    29,    30,    54
+       0,     7,     8,     9,    10,    11,    12,    13,    14,    15,
+      27,    34,    36,    37,    38,    39,    41,    42,    46,    47,
+      48,    49,    50,    51,    30,     4,    40,    40,    20,    54,
+       4,     4,     4,     5,     0,    28,    35,     4,     7,     8,
+      10,    11,    12,    13,    14,    15,    16,    17,    18,    19,
+      20,    21,    22,    23,    24,    25,    26,    27,    60,    61,
+      62,    29,     4,    18,    52,    22,    53,    16,    30,    31,
+      32,     3,     4,     5,     4,    19,     6,    18,    19,    60,
+      61,     6,    17,    55,    30,    43,    44,     4,    31,    30,
+      56,     5,    60,    21,    23,    24,    25,    26,    45,    43,
+       4,    57,    58,    31,     3,    59,    31,    32,    58
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    31,    32,    33,    33,    34,    34,    34,    34,    34,
-      34,    34,    34,    34,    35,    36,    37,    38,    38,    39,
-      39,    40,    40,    41,    41,    42,    42,    43,    43,    43,
-      43,    43,    44,    44,    45,    46,    47,    48,    48,    49,
-      49,    50,    50,    51,    51,    52,    52,    53,    53,    54,
-      55,    55,    56,    56,    57,    57,    57,    57,    58,    58,
-      58,    58,    58,    58,    58,    58,    58,    58,    58,    58,
-      58,    58,    58,    58,    58,    58,    58
+       0,    33,    34,    35,    35,    36,    36,    36,    36,    36,
+      36,    36,    36,    36,    36,    36,    37,    38,    39,    40,
+      40,    41,    41,    42,    42,    43,    43,    44,    44,    45,
+      45,    45,    45,    45,    46,    46,    47,    48,    49,    50,
+      51,    52,    52,    53,    53,    54,    54,    55,    55,    56,
+      56,    57,    57,    58,    59,    59,    60,    60,    61,    61,
+      61,    61,    62,    62,    62,    62,    62,    62,    62,    62,
+      62,    62,    62,    62,    62,    62,    62,    62,    62,    62,
+      62,    62,    62
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     2,     1,     0,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     1,     2,     2,     1,     3,     4,
-       1,     5,     6,     3,     1,     2,     0,     1,     1,     1,
-       1,     1,     2,     3,     5,     6,     2,     1,     0,     1,
-       0,     2,     0,     2,     0,     3,     0,     1,     3,     2,
-       1,     0,     3,     1,     1,     2,     2,     2,     1,     1,
+       1,     1,     1,     1,     1,     1,     1,     2,     2,     1,
+       3,     4,     1,     5,     6,     3,     1,     2,     0,     1,
+       1,     1,     1,     1,     2,     3,     5,     5,     6,     2,
+       1,     1,     0,     1,     0,     2,     0,     2,     0,     3,
+       0,     1,     3,     2,     1,     0,     3,     1,     1,     2,
+       2,     2,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     1,     1,     1
+       1,     1,     1
 };
 
 
@@ -1225,74 +1238,74 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* firstcmd: command opt_semicolon  */
-#line 98 "repl_gram.y"
+#line 101 "repl_gram.y"
                                 {
 					replication_parse_result = (yyvsp[-1].node);
 				}
-#line 1233 "repl_gram.c"
+#line 1246 "repl_gram.c"
     break;
 
-  case 14: /* identify_system: K_IDENTIFY_SYSTEM  */
-#line 124 "repl_gram.y"
+  case 16: /* identify_system: K_IDENTIFY_SYSTEM  */
+#line 129 "repl_gram.y"
                                 {
 					(yyval.node) = (Node *) makeNode(IdentifySystemCmd);
 				}
-#line 1241 "repl_gram.c"
+#line 1254 "repl_gram.c"
     break;
 
-  case 15: /* read_replication_slot: K_READ_REPLICATION_SLOT var_name  */
-#line 134 "repl_gram.y"
+  case 17: /* read_replication_slot: K_READ_REPLICATION_SLOT var_name  */
+#line 139 "repl_gram.y"
                                 {
 					ReadReplicationSlotCmd *n = makeNode(ReadReplicationSlotCmd);
 					n->slotname = (yyvsp[0].str);
 					(yyval.node) = (Node *) n;
 				}
-#line 1251 "repl_gram.c"
+#line 1264 "repl_gram.c"
     break;
 
-  case 16: /* show: K_SHOW var_name  */
-#line 146 "repl_gram.y"
+  case 18: /* show: K_SHOW var_name  */
+#line 151 "repl_gram.y"
                                 {
 					VariableShowStmt *n = makeNode(VariableShowStmt);
 					n->name = (yyvsp[0].str);
 					(yyval.node) = (Node *) n;
 				}
-#line 1261 "repl_gram.c"
+#line 1274 "repl_gram.c"
     break;
 
-  case 17: /* var_name: IDENT  */
-#line 152 "repl_gram.y"
+  case 19: /* var_name: IDENT  */
+#line 157 "repl_gram.y"
                         { (yyval.str) = (yyvsp[0].str); }
-#line 1267 "repl_gram.c"
+#line 1280 "repl_gram.c"
     break;
 
-  case 18: /* var_name: var_name '.' IDENT  */
-#line 154 "repl_gram.y"
+  case 20: /* var_name: var_name '.' IDENT  */
+#line 159 "repl_gram.y"
                                 { (yyval.str) = psprintf("%s.%s", (yyvsp[-2].str), (yyvsp[0].str)); }
-#line 1273 "repl_gram.c"
+#line 1286 "repl_gram.c"
     break;
 
-  case 19: /* base_backup: K_BASE_BACKUP '(' generic_option_list ')'  */
-#line 162 "repl_gram.y"
+  case 21: /* base_backup: K_BASE_BACKUP '(' generic_option_list ')'  */
+#line 167 "repl_gram.y"
                                 {
 					BaseBackupCmd *cmd = makeNode(BaseBackupCmd);
 					cmd->options = (yyvsp[-1].list);
 					(yyval.node) = (Node *) cmd;
 				}
-#line 1283 "repl_gram.c"
+#line 1296 "repl_gram.c"
     break;
 
-  case 20: /* base_backup: K_BASE_BACKUP  */
-#line 168 "repl_gram.y"
+  case 22: /* base_backup: K_BASE_BACKUP  */
+#line 173 "repl_gram.y"
                                 {
 					BaseBackupCmd *cmd = makeNode(BaseBackupCmd);
 					(yyval.node) = (Node *) cmd;
 				}
-#line 1292 "repl_gram.c"
+#line 1305 "repl_gram.c"
     break;
 
-  case 21: /* create_replication_slot: K_CREATE_REPLICATION_SLOT IDENT opt_temporary K_PHYSICAL create_slot_options  */
-#line 177 "repl_gram.y"
+  case 23: /* create_replication_slot: K_CREATE_REPLICATION_SLOT IDENT opt_temporary K_PHYSICAL create_slot_options  */
+#line 182 "repl_gram.y"
                                 {
 					CreateReplicationSlotCmd *cmd;
 					cmd = makeNode(CreateReplicationSlotCmd);
@@ -1302,11 +1315,11 @@ yyreduce:
 					cmd->options = (yyvsp[0].list);
 					(yyval.node) = (Node *) cmd;
 				}
-#line 1306 "repl_gram.c"
+#line 1319 "repl_gram.c"
     break;
 
-  case 22: /* create_replication_slot: K_CREATE_REPLICATION_SLOT IDENT opt_temporary K_LOGICAL IDENT create_slot_options  */
-#line 188 "repl_gram.y"
+  case 24: /* create_replication_slot: K_CREATE_REPLICATION_SLOT IDENT opt_temporary K_LOGICAL IDENT create_slot_options  */
+#line 193 "repl_gram.y"
                                 {
 					CreateReplicationSlotCmd *cmd;
 					cmd = makeNode(CreateReplicationSlotCmd);
@@ -1317,80 +1330,80 @@ yyreduce:
 					cmd->options = (yyvsp[0].list);
 					(yyval.node) = (Node *) cmd;
 				}
-#line 1321 "repl_gram.c"
+#line 1334 "repl_gram.c"
     break;
 
-  case 23: /* create_slot_options: '(' generic_option_list ')'  */
-#line 201 "repl_gram.y"
+  case 25: /* create_slot_options: '(' generic_option_list ')'  */
+#line 206 "repl_gram.y"
                                                                         { (yyval.list) = (yyvsp[-1].list); }
-#line 1327 "repl_gram.c"
+#line 1340 "repl_gram.c"
     break;
 
-  case 24: /* create_slot_options: create_slot_legacy_opt_list  */
-#line 202 "repl_gram.y"
-                                                                { (yyval.list) = (yyvsp[0].list); }
-#line 1333 "repl_gram.c"
-    break;
-
-  case 25: /* create_slot_legacy_opt_list: create_slot_legacy_opt_list create_slot_legacy_opt  */
+  case 26: /* create_slot_options: create_slot_legacy_opt_list  */
 #line 207 "repl_gram.y"
+                                                                { (yyval.list) = (yyvsp[0].list); }
+#line 1346 "repl_gram.c"
+    break;
+
+  case 27: /* create_slot_legacy_opt_list: create_slot_legacy_opt_list create_slot_legacy_opt  */
+#line 212 "repl_gram.y"
                                 { (yyval.list) = lappend((yyvsp[-1].list), (yyvsp[0].defelt)); }
-#line 1339 "repl_gram.c"
+#line 1352 "repl_gram.c"
     break;
 
-  case 26: /* create_slot_legacy_opt_list: %empty  */
-#line 209 "repl_gram.y"
-                                { (yyval.list) = NIL; }
-#line 1345 "repl_gram.c"
-    break;
-
-  case 27: /* create_slot_legacy_opt: K_EXPORT_SNAPSHOT  */
+  case 28: /* create_slot_legacy_opt_list: %empty  */
 #line 214 "repl_gram.y"
+                                { (yyval.list) = NIL; }
+#line 1358 "repl_gram.c"
+    break;
+
+  case 29: /* create_slot_legacy_opt: K_EXPORT_SNAPSHOT  */
+#line 219 "repl_gram.y"
                                 {
 				  (yyval.defelt) = makeDefElem("snapshot",
 								   (Node *) makeString("export"), -1);
 				}
-#line 1354 "repl_gram.c"
+#line 1367 "repl_gram.c"
     break;
 
-  case 28: /* create_slot_legacy_opt: K_NOEXPORT_SNAPSHOT  */
-#line 219 "repl_gram.y"
+  case 30: /* create_slot_legacy_opt: K_NOEXPORT_SNAPSHOT  */
+#line 224 "repl_gram.y"
                                 {
 				  (yyval.defelt) = makeDefElem("snapshot",
 								   (Node *) makeString("nothing"), -1);
 				}
-#line 1363 "repl_gram.c"
+#line 1376 "repl_gram.c"
     break;
 
-  case 29: /* create_slot_legacy_opt: K_USE_SNAPSHOT  */
-#line 224 "repl_gram.y"
+  case 31: /* create_slot_legacy_opt: K_USE_SNAPSHOT  */
+#line 229 "repl_gram.y"
                                 {
 				  (yyval.defelt) = makeDefElem("snapshot",
 								   (Node *) makeString("use"), -1);
 				}
-#line 1372 "repl_gram.c"
+#line 1385 "repl_gram.c"
     break;
 
-  case 30: /* create_slot_legacy_opt: K_RESERVE_WAL  */
-#line 229 "repl_gram.y"
+  case 32: /* create_slot_legacy_opt: K_RESERVE_WAL  */
+#line 234 "repl_gram.y"
                                 {
 				  (yyval.defelt) = makeDefElem("reserve_wal",
 								   (Node *) makeBoolean(true), -1);
 				}
-#line 1381 "repl_gram.c"
+#line 1394 "repl_gram.c"
     break;
 
-  case 31: /* create_slot_legacy_opt: K_TWO_PHASE  */
-#line 234 "repl_gram.y"
+  case 33: /* create_slot_legacy_opt: K_TWO_PHASE  */
+#line 239 "repl_gram.y"
                                 {
 				  (yyval.defelt) = makeDefElem("two_phase",
 								   (Node *) makeBoolean(true), -1);
 				}
-#line 1390 "repl_gram.c"
+#line 1403 "repl_gram.c"
     break;
 
-  case 32: /* drop_replication_slot: K_DROP_REPLICATION_SLOT IDENT  */
-#line 243 "repl_gram.y"
+  case 34: /* drop_replication_slot: K_DROP_REPLICATION_SLOT IDENT  */
+#line 248 "repl_gram.y"
                                 {
 					DropReplicationSlotCmd *cmd;
 					cmd = makeNode(DropReplicationSlotCmd);
@@ -1398,11 +1411,11 @@ yyreduce:
 					cmd->wait = false;
 					(yyval.node) = (Node *) cmd;
 				}
-#line 1402 "repl_gram.c"
+#line 1415 "repl_gram.c"
     break;
 
-  case 33: /* drop_replication_slot: K_DROP_REPLICATION_SLOT IDENT K_WAIT  */
-#line 251 "repl_gram.y"
+  case 35: /* drop_replication_slot: K_DROP_REPLICATION_SLOT IDENT K_WAIT  */
+#line 256 "repl_gram.y"
                                 {
 					DropReplicationSlotCmd *cmd;
 					cmd = makeNode(DropReplicationSlotCmd);
@@ -1410,11 +1423,23 @@ yyreduce:
 					cmd->wait = true;
 					(yyval.node) = (Node *) cmd;
 				}
-#line 1414 "repl_gram.c"
+#line 1427 "repl_gram.c"
     break;
 
-  case 34: /* start_replication: K_START_REPLICATION opt_slot opt_physical RECPTR opt_timeline  */
-#line 265 "repl_gram.y"
+  case 36: /* alter_replication_slot: K_ALTER_REPLICATION_SLOT IDENT '(' generic_option_list ')'  */
+#line 268 "repl_gram.y"
+                                {
+					AlterReplicationSlotCmd *cmd;
+					cmd = makeNode(AlterReplicationSlotCmd);
+					cmd->slotname = (yyvsp[-3].str);
+					cmd->options = (yyvsp[-1].list);
+					(yyval.node) = (Node *) cmd;
+				}
+#line 1439 "repl_gram.c"
+    break;
+
+  case 37: /* start_replication: K_START_REPLICATION opt_slot opt_physical RECPTR opt_timeline  */
+#line 282 "repl_gram.y"
                                 {
 					StartReplicationCmd *cmd;
 
@@ -1425,11 +1450,11 @@ yyreduce:
 					cmd->timeline = (yyvsp[0].uintval);
 					(yyval.node) = (Node *) cmd;
 				}
-#line 1429 "repl_gram.c"
+#line 1454 "repl_gram.c"
     break;
 
-  case 35: /* start_logical_replication: K_START_REPLICATION K_SLOT IDENT K_LOGICAL RECPTR plugin_options  */
-#line 280 "repl_gram.y"
+  case 38: /* start_logical_replication: K_START_REPLICATION K_SLOT IDENT K_LOGICAL RECPTR plugin_options  */
+#line 297 "repl_gram.y"
                                 {
 					StartReplicationCmd *cmd;
 					cmd = makeNode(StartReplicationCmd);
@@ -1439,11 +1464,11 @@ yyreduce:
 					cmd->options = (yyvsp[0].list);
 					(yyval.node) = (Node *) cmd;
 				}
-#line 1443 "repl_gram.c"
+#line 1468 "repl_gram.c"
     break;
 
-  case 36: /* timeline_history: K_TIMELINE_HISTORY UCONST  */
-#line 295 "repl_gram.y"
+  case 39: /* timeline_history: K_TIMELINE_HISTORY UCONST  */
+#line 312 "repl_gram.y"
                                 {
 					TimeLineHistoryCmd *cmd;
 
@@ -1457,35 +1482,45 @@ yyreduce:
 
 					(yyval.node) = (Node *) cmd;
 				}
-#line 1461 "repl_gram.c"
+#line 1486 "repl_gram.c"
     break;
 
-  case 39: /* opt_temporary: K_TEMPORARY  */
-#line 316 "repl_gram.y"
+  case 40: /* upload_manifest: K_UPLOAD_MANIFEST  */
+#line 330 "repl_gram.y"
+                                {
+					UploadManifestCmd *cmd = makeNode(UploadManifestCmd);
+
+					(yyval.node) = (Node *) cmd;
+				}
+#line 1496 "repl_gram.c"
+    break;
+
+  case 43: /* opt_temporary: K_TEMPORARY  */
+#line 342 "repl_gram.y"
                                                                                 { (yyval.boolval) = true; }
-#line 1467 "repl_gram.c"
+#line 1502 "repl_gram.c"
     break;
 
-  case 40: /* opt_temporary: %empty  */
-#line 317 "repl_gram.y"
+  case 44: /* opt_temporary: %empty  */
+#line 343 "repl_gram.y"
                                                                         { (yyval.boolval) = false; }
-#line 1473 "repl_gram.c"
+#line 1508 "repl_gram.c"
     break;
 
-  case 41: /* opt_slot: K_SLOT IDENT  */
-#line 322 "repl_gram.y"
+  case 45: /* opt_slot: K_SLOT IDENT  */
+#line 348 "repl_gram.y"
                                 { (yyval.str) = (yyvsp[0].str); }
-#line 1479 "repl_gram.c"
+#line 1514 "repl_gram.c"
     break;
 
-  case 42: /* opt_slot: %empty  */
-#line 324 "repl_gram.y"
+  case 46: /* opt_slot: %empty  */
+#line 350 "repl_gram.y"
                                 { (yyval.str) = NULL; }
-#line 1485 "repl_gram.c"
+#line 1520 "repl_gram.c"
     break;
 
-  case 43: /* opt_timeline: K_TIMELINE UCONST  */
-#line 329 "repl_gram.y"
+  case 47: /* opt_timeline: K_TIMELINE UCONST  */
+#line 355 "repl_gram.y"
                                 {
 					if ((yyvsp[0].uintval) <= 0)
 						ereport(ERROR,
@@ -1493,223 +1528,235 @@ yyreduce:
 								 errmsg("invalid timeline %u", (yyvsp[0].uintval))));
 					(yyval.uintval) = (yyvsp[0].uintval);
 				}
-#line 1497 "repl_gram.c"
+#line 1532 "repl_gram.c"
     break;
 
-  case 44: /* opt_timeline: %empty  */
-#line 336 "repl_gram.y"
+  case 48: /* opt_timeline: %empty  */
+#line 362 "repl_gram.y"
                                                                 { (yyval.uintval) = 0; }
-#line 1503 "repl_gram.c"
+#line 1538 "repl_gram.c"
     break;
 
-  case 45: /* plugin_options: '(' plugin_opt_list ')'  */
-#line 341 "repl_gram.y"
+  case 49: /* plugin_options: '(' plugin_opt_list ')'  */
+#line 367 "repl_gram.y"
                                                                 { (yyval.list) = (yyvsp[-1].list); }
-#line 1509 "repl_gram.c"
+#line 1544 "repl_gram.c"
     break;
 
-  case 46: /* plugin_options: %empty  */
-#line 342 "repl_gram.y"
+  case 50: /* plugin_options: %empty  */
+#line 368 "repl_gram.y"
                                                                         { (yyval.list) = NIL; }
-#line 1515 "repl_gram.c"
+#line 1550 "repl_gram.c"
     break;
 
-  case 47: /* plugin_opt_list: plugin_opt_elem  */
-#line 347 "repl_gram.y"
+  case 51: /* plugin_opt_list: plugin_opt_elem  */
+#line 373 "repl_gram.y"
                                 {
 					(yyval.list) = list_make1((yyvsp[0].defelt));
 				}
-#line 1523 "repl_gram.c"
+#line 1558 "repl_gram.c"
     break;
 
-  case 48: /* plugin_opt_list: plugin_opt_list ',' plugin_opt_elem  */
-#line 351 "repl_gram.y"
+  case 52: /* plugin_opt_list: plugin_opt_list ',' plugin_opt_elem  */
+#line 377 "repl_gram.y"
                                 {
 					(yyval.list) = lappend((yyvsp[-2].list), (yyvsp[0].defelt));
 				}
-#line 1531 "repl_gram.c"
+#line 1566 "repl_gram.c"
     break;
 
-  case 49: /* plugin_opt_elem: IDENT plugin_opt_arg  */
-#line 358 "repl_gram.y"
+  case 53: /* plugin_opt_elem: IDENT plugin_opt_arg  */
+#line 384 "repl_gram.y"
                                 {
 					(yyval.defelt) = makeDefElem((yyvsp[-1].str), (yyvsp[0].node), -1);
 				}
-#line 1539 "repl_gram.c"
+#line 1574 "repl_gram.c"
     break;
 
-  case 50: /* plugin_opt_arg: SCONST  */
-#line 364 "repl_gram.y"
+  case 54: /* plugin_opt_arg: SCONST  */
+#line 390 "repl_gram.y"
                                                                                 { (yyval.node) = (Node *) makeString((yyvsp[0].str)); }
-#line 1545 "repl_gram.c"
+#line 1580 "repl_gram.c"
     break;
 
-  case 51: /* plugin_opt_arg: %empty  */
-#line 365 "repl_gram.y"
+  case 55: /* plugin_opt_arg: %empty  */
+#line 391 "repl_gram.y"
                                                                         { (yyval.node) = NULL; }
-#line 1551 "repl_gram.c"
+#line 1586 "repl_gram.c"
     break;
 
-  case 52: /* generic_option_list: generic_option_list ',' generic_option  */
-#line 370 "repl_gram.y"
+  case 56: /* generic_option_list: generic_option_list ',' generic_option  */
+#line 396 "repl_gram.y"
                                 { (yyval.list) = lappend((yyvsp[-2].list), (yyvsp[0].defelt)); }
-#line 1557 "repl_gram.c"
+#line 1592 "repl_gram.c"
     break;
 
-  case 53: /* generic_option_list: generic_option  */
-#line 372 "repl_gram.y"
+  case 57: /* generic_option_list: generic_option  */
+#line 398 "repl_gram.y"
                                 { (yyval.list) = list_make1((yyvsp[0].defelt)); }
-#line 1563 "repl_gram.c"
+#line 1598 "repl_gram.c"
     break;
 
-  case 54: /* generic_option: ident_or_keyword  */
-#line 377 "repl_gram.y"
+  case 58: /* generic_option: ident_or_keyword  */
+#line 403 "repl_gram.y"
                                 {
 					(yyval.defelt) = makeDefElem((yyvsp[0].str), NULL, -1);
 				}
-#line 1571 "repl_gram.c"
+#line 1606 "repl_gram.c"
     break;
 
-  case 55: /* generic_option: ident_or_keyword IDENT  */
-#line 381 "repl_gram.y"
+  case 59: /* generic_option: ident_or_keyword IDENT  */
+#line 407 "repl_gram.y"
                                 {
 					(yyval.defelt) = makeDefElem((yyvsp[-1].str), (Node *) makeString((yyvsp[0].str)), -1);
 				}
-#line 1579 "repl_gram.c"
+#line 1614 "repl_gram.c"
     break;
 
-  case 56: /* generic_option: ident_or_keyword SCONST  */
-#line 385 "repl_gram.y"
+  case 60: /* generic_option: ident_or_keyword SCONST  */
+#line 411 "repl_gram.y"
                                 {
 					(yyval.defelt) = makeDefElem((yyvsp[-1].str), (Node *) makeString((yyvsp[0].str)), -1);
 				}
-#line 1587 "repl_gram.c"
+#line 1622 "repl_gram.c"
     break;
 
-  case 57: /* generic_option: ident_or_keyword UCONST  */
-#line 389 "repl_gram.y"
+  case 61: /* generic_option: ident_or_keyword UCONST  */
+#line 415 "repl_gram.y"
                                 {
 					(yyval.defelt) = makeDefElem((yyvsp[-1].str), (Node *) makeInteger((yyvsp[0].uintval)), -1);
 				}
-#line 1595 "repl_gram.c"
+#line 1630 "repl_gram.c"
     break;
 
-  case 58: /* ident_or_keyword: IDENT  */
-#line 395 "repl_gram.y"
+  case 62: /* ident_or_keyword: IDENT  */
+#line 421 "repl_gram.y"
                                                                                 { (yyval.str) = (yyvsp[0].str); }
-#line 1601 "repl_gram.c"
+#line 1636 "repl_gram.c"
     break;
 
-  case 59: /* ident_or_keyword: K_BASE_BACKUP  */
-#line 396 "repl_gram.y"
+  case 63: /* ident_or_keyword: K_BASE_BACKUP  */
+#line 422 "repl_gram.y"
                                                                         { (yyval.str) = "base_backup"; }
-#line 1607 "repl_gram.c"
+#line 1642 "repl_gram.c"
     break;
 
-  case 60: /* ident_or_keyword: K_IDENTIFY_SYSTEM  */
-#line 397 "repl_gram.y"
+  case 64: /* ident_or_keyword: K_IDENTIFY_SYSTEM  */
+#line 423 "repl_gram.y"
                                                                         { (yyval.str) = "identify_system"; }
-#line 1613 "repl_gram.c"
+#line 1648 "repl_gram.c"
     break;
 
-  case 61: /* ident_or_keyword: K_SHOW  */
-#line 398 "repl_gram.y"
+  case 65: /* ident_or_keyword: K_SHOW  */
+#line 424 "repl_gram.y"
                                                                                 { (yyval.str) = "show"; }
-#line 1619 "repl_gram.c"
+#line 1654 "repl_gram.c"
     break;
 
-  case 62: /* ident_or_keyword: K_START_REPLICATION  */
-#line 399 "repl_gram.y"
+  case 66: /* ident_or_keyword: K_START_REPLICATION  */
+#line 425 "repl_gram.y"
                                                                 { (yyval.str) = "start_replication"; }
-#line 1625 "repl_gram.c"
+#line 1660 "repl_gram.c"
     break;
 
-  case 63: /* ident_or_keyword: K_CREATE_REPLICATION_SLOT  */
-#line 400 "repl_gram.y"
+  case 67: /* ident_or_keyword: K_CREATE_REPLICATION_SLOT  */
+#line 426 "repl_gram.y"
                                                         { (yyval.str) = "create_replication_slot"; }
-#line 1631 "repl_gram.c"
+#line 1666 "repl_gram.c"
     break;
 
-  case 64: /* ident_or_keyword: K_DROP_REPLICATION_SLOT  */
-#line 401 "repl_gram.y"
+  case 68: /* ident_or_keyword: K_DROP_REPLICATION_SLOT  */
+#line 427 "repl_gram.y"
                                                                 { (yyval.str) = "drop_replication_slot"; }
-#line 1637 "repl_gram.c"
+#line 1672 "repl_gram.c"
     break;
 
-  case 65: /* ident_or_keyword: K_TIMELINE_HISTORY  */
-#line 402 "repl_gram.y"
+  case 69: /* ident_or_keyword: K_ALTER_REPLICATION_SLOT  */
+#line 428 "repl_gram.y"
+                                                                { (yyval.str) = "alter_replication_slot"; }
+#line 1678 "repl_gram.c"
+    break;
+
+  case 70: /* ident_or_keyword: K_TIMELINE_HISTORY  */
+#line 429 "repl_gram.y"
                                                                 { (yyval.str) = "timeline_history"; }
-#line 1643 "repl_gram.c"
+#line 1684 "repl_gram.c"
     break;
 
-  case 66: /* ident_or_keyword: K_WAIT  */
-#line 403 "repl_gram.y"
+  case 71: /* ident_or_keyword: K_WAIT  */
+#line 430 "repl_gram.y"
                                                                                 { (yyval.str) = "wait"; }
-#line 1649 "repl_gram.c"
+#line 1690 "repl_gram.c"
     break;
 
-  case 67: /* ident_or_keyword: K_TIMELINE  */
-#line 404 "repl_gram.y"
+  case 72: /* ident_or_keyword: K_TIMELINE  */
+#line 431 "repl_gram.y"
                                                                         { (yyval.str) = "timeline"; }
-#line 1655 "repl_gram.c"
+#line 1696 "repl_gram.c"
     break;
 
-  case 68: /* ident_or_keyword: K_PHYSICAL  */
-#line 405 "repl_gram.y"
+  case 73: /* ident_or_keyword: K_PHYSICAL  */
+#line 432 "repl_gram.y"
                                                                         { (yyval.str) = "physical"; }
-#line 1661 "repl_gram.c"
+#line 1702 "repl_gram.c"
     break;
 
-  case 69: /* ident_or_keyword: K_LOGICAL  */
-#line 406 "repl_gram.y"
+  case 74: /* ident_or_keyword: K_LOGICAL  */
+#line 433 "repl_gram.y"
                                                                                 { (yyval.str) = "logical"; }
-#line 1667 "repl_gram.c"
+#line 1708 "repl_gram.c"
     break;
 
-  case 70: /* ident_or_keyword: K_SLOT  */
-#line 407 "repl_gram.y"
+  case 75: /* ident_or_keyword: K_SLOT  */
+#line 434 "repl_gram.y"
                                                                                 { (yyval.str) = "slot"; }
-#line 1673 "repl_gram.c"
+#line 1714 "repl_gram.c"
     break;
 
-  case 71: /* ident_or_keyword: K_RESERVE_WAL  */
-#line 408 "repl_gram.y"
+  case 76: /* ident_or_keyword: K_RESERVE_WAL  */
+#line 435 "repl_gram.y"
                                                                         { (yyval.str) = "reserve_wal"; }
-#line 1679 "repl_gram.c"
+#line 1720 "repl_gram.c"
     break;
 
-  case 72: /* ident_or_keyword: K_TEMPORARY  */
-#line 409 "repl_gram.y"
+  case 77: /* ident_or_keyword: K_TEMPORARY  */
+#line 436 "repl_gram.y"
                                                                         { (yyval.str) = "temporary"; }
-#line 1685 "repl_gram.c"
+#line 1726 "repl_gram.c"
     break;
 
-  case 73: /* ident_or_keyword: K_TWO_PHASE  */
-#line 410 "repl_gram.y"
+  case 78: /* ident_or_keyword: K_TWO_PHASE  */
+#line 437 "repl_gram.y"
                                                                         { (yyval.str) = "two_phase"; }
-#line 1691 "repl_gram.c"
+#line 1732 "repl_gram.c"
     break;
 
-  case 74: /* ident_or_keyword: K_EXPORT_SNAPSHOT  */
-#line 411 "repl_gram.y"
+  case 79: /* ident_or_keyword: K_EXPORT_SNAPSHOT  */
+#line 438 "repl_gram.y"
                                                                         { (yyval.str) = "export_snapshot"; }
-#line 1697 "repl_gram.c"
+#line 1738 "repl_gram.c"
     break;
 
-  case 75: /* ident_or_keyword: K_NOEXPORT_SNAPSHOT  */
-#line 412 "repl_gram.y"
+  case 80: /* ident_or_keyword: K_NOEXPORT_SNAPSHOT  */
+#line 439 "repl_gram.y"
                                                                 { (yyval.str) = "noexport_snapshot"; }
-#line 1703 "repl_gram.c"
+#line 1744 "repl_gram.c"
     break;
 
-  case 76: /* ident_or_keyword: K_USE_SNAPSHOT  */
-#line 413 "repl_gram.y"
+  case 81: /* ident_or_keyword: K_USE_SNAPSHOT  */
+#line 440 "repl_gram.y"
                                                                         { (yyval.str) = "use_snapshot"; }
-#line 1709 "repl_gram.c"
+#line 1750 "repl_gram.c"
+    break;
+
+  case 82: /* ident_or_keyword: K_UPLOAD_MANIFEST  */
+#line 441 "repl_gram.y"
+                                                                        { (yyval.str) = "upload_manifest"; }
+#line 1756 "repl_gram.c"
     break;
 
 
-#line 1713 "repl_gram.c"
+#line 1760 "repl_gram.c"
 
       default: break;
     }
@@ -1902,5 +1949,5 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 416 "repl_gram.y"
+#line 444 "repl_gram.y"
 

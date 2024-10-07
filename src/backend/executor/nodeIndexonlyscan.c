@@ -3,7 +3,7 @@
  * nodeIndexonlyscan.c
  *	  Routines to support index-only scans
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  *
@@ -36,14 +36,13 @@
 #include "access/tupdesc.h"
 #include "access/visibilitymap.h"
 #include "catalog/pg_type.h"
-#include "executor/execdebug.h"
+#include "executor/executor.h"
 #include "executor/nodeIndexonlyscan.h"
 #include "executor/nodeIndexscan.h"
 #include "miscadmin.h"
 #include "storage/bufmgr.h"
 #include "storage/predicate.h"
 #include "utils/builtins.h"
-#include "utils/memutils.h"
 #include "utils/rel.h"
 
 
@@ -415,22 +414,6 @@ ExecEndIndexOnlyScan(IndexOnlyScanState *node)
 	}
 
 	/*
-	 * Free the exprcontext(s) ... now dead code, see ExecFreeExprContext
-	 */
-#ifdef NOT_USED
-	ExecFreeExprContext(&node->ss.ps);
-	if (node->ioss_RuntimeContext)
-		FreeExprContext(node->ioss_RuntimeContext, true);
-#endif
-
-	/*
-	 * clear out tuple table slots
-	 */
-	if (node->ss.ps.ps_ResultTupleSlot)
-		ExecClearTuple(node->ss.ps.ps_ResultTupleSlot);
-	ExecClearTuple(node->ss.ss_ScanTupleSlot);
-
-	/*
 	 * close the index relation (no-op if we didn't open it)
 	 */
 	if (indexScanDesc)
@@ -689,7 +672,7 @@ ExecInitIndexOnlyScan(IndexOnlyScan *node, EState *estate, int eflags)
 		 * need to be converted from cstring to name.
 		 */
 		indexstate->ioss_NameCStringAttNums = (AttrNumber *)
-									palloc(sizeof(AttrNumber) * namecount);
+			palloc(sizeof(AttrNumber) * namecount);
 
 		for (int attnum = 0; attnum < indnkeyatts; attnum++)
 		{
@@ -726,6 +709,8 @@ ExecIndexOnlyScanEstimate(IndexOnlyScanState *node,
 	EState	   *estate = node->ss.ps.state;
 
 	node->ioss_PscanLen = index_parallelscan_estimate(node->ioss_RelationDesc,
+													  node->ioss_NumScanKeys,
+													  node->ioss_NumOrderByKeys,
 													  estate->es_snapshot);
 	shm_toc_estimate_chunk(&pcxt->estimator, node->ioss_PscanLen);
 	shm_toc_estimate_keys(&pcxt->estimator, 1);

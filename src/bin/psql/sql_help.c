@@ -144,7 +144,7 @@ sql_help_ALTER_DEFAULT_PRIVILEGES(PQExpBuffer buf)
 					  "\n"
 					  "%s\n"
 					  "\n"
-					  "GRANT { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER }\n"
+					  "GRANT { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER | MAINTAIN }\n"
 					  "    [, ...] | ALL [ PRIVILEGES ] }\n"
 					  "    ON TABLES\n"
 					  "    TO { [ GROUP ] %s | PUBLIC } [, ...] [ WITH GRANT OPTION ]\n"
@@ -168,7 +168,7 @@ sql_help_ALTER_DEFAULT_PRIVILEGES(PQExpBuffer buf)
 					  "    TO { [ GROUP ] %s | PUBLIC } [, ...] [ WITH GRANT OPTION ]\n"
 					  "\n"
 					  "REVOKE [ GRANT OPTION FOR ]\n"
-					  "    { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER }\n"
+					  "    { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER | MAINTAIN }\n"
 					  "    [, ...] | ALL [ PRIVILEGES ] }\n"
 					  "    ON TABLES\n"
 					  "    FROM { [ GROUP ] %s | PUBLIC } [, ...]\n"
@@ -712,7 +712,11 @@ sql_help_ALTER_OPERATOR(PQExpBuffer buf)
 					  "ALTER OPERATOR %s ( { %s | NONE } , %s )\n"
 					  "    SET ( {  RESTRICT = { %s | NONE }\n"
 					  "           | JOIN = { %s | NONE }\n"
-					  "         } [, ... ] )",
+					  "           | COMMUTATOR = %s\n"
+					  "           | NEGATOR = %s\n"
+					  "           | HASHES\n"
+					  "           | MERGES\n"
+					  "          } [, ... ] )",
 					  _("name"),
 					  _("left_type"),
 					  _("right_type"),
@@ -725,7 +729,9 @@ sql_help_ALTER_OPERATOR(PQExpBuffer buf)
 					  _("left_type"),
 					  _("right_type"),
 					  _("res_proc"),
-					  _("join_proc"));
+					  _("join_proc"),
+					  _("com_op"),
+					  _("neg_op"));
 }
 
 static void
@@ -1114,7 +1120,7 @@ sql_help_ALTER_STATISTICS(PQExpBuffer buf)
 					  "ALTER STATISTICS %s OWNER TO { %s | CURRENT_ROLE | CURRENT_USER | SESSION_USER }\n"
 					  "ALTER STATISTICS %s RENAME TO %s\n"
 					  "ALTER STATISTICS %s SET SCHEMA %s\n"
-					  "ALTER STATISTICS %s SET STATISTICS %s",
+					  "ALTER STATISTICS %s SET STATISTICS { %s | DEFAULT }",
 					  _("name"),
 					  _("new_owner"),
 					  _("name"),
@@ -1213,11 +1219,12 @@ sql_help_ALTER_TABLE(PQExpBuffer buf)
 					  "    ALTER [ COLUMN ] %s SET DEFAULT %s\n"
 					  "    ALTER [ COLUMN ] %s DROP DEFAULT\n"
 					  "    ALTER [ COLUMN ] %s { SET | DROP } NOT NULL\n"
+					  "    ALTER [ COLUMN ] %s SET EXPRESSION AS ( %s )\n"
 					  "    ALTER [ COLUMN ] %s DROP EXPRESSION [ IF EXISTS ]\n"
 					  "    ALTER [ COLUMN ] %s ADD GENERATED { ALWAYS | BY DEFAULT } AS IDENTITY [ ( %s ) ]\n"
 					  "    ALTER [ COLUMN ] %s { SET GENERATED { ALWAYS | BY DEFAULT } | SET %s | RESTART [ [ WITH ] %s ] } [...]\n"
 					  "    ALTER [ COLUMN ] %s DROP IDENTITY [ IF EXISTS ]\n"
-					  "    ALTER [ COLUMN ] %s SET STATISTICS %s\n"
+					  "    ALTER [ COLUMN ] %s SET STATISTICS { %s | DEFAULT }\n"
 					  "    ALTER [ COLUMN ] %s SET ( %s = %s [, ... ] )\n"
 					  "    ALTER [ COLUMN ] %s RESET ( %s [, ... ] )\n"
 					  "    ALTER [ COLUMN ] %s SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN | DEFAULT }\n"
@@ -1242,7 +1249,7 @@ sql_help_ALTER_TABLE(PQExpBuffer buf)
 					  "    CLUSTER ON %s\n"
 					  "    SET WITHOUT CLUSTER\n"
 					  "    SET WITHOUT OIDS\n"
-					  "    SET ACCESS METHOD %s\n"
+					  "    SET ACCESS METHOD { %s | DEFAULT }\n"
 					  "    SET TABLESPACE %s\n"
 					  "    SET { LOGGED | UNLOGGED }\n"
 					  "    SET ( %s [= %s] [, ... ] )\n"
@@ -1340,6 +1347,8 @@ sql_help_ALTER_TABLE(PQExpBuffer buf)
 					  _("expression"),
 					  _("column_name"),
 					  _("column_name"),
+					  _("column_name"),
+					  _("expression"),
 					  _("column_name"),
 					  _("column_name"),
 					  _("sequence_options"),
@@ -1709,7 +1718,6 @@ sql_help_ANALYZE(PQExpBuffer buf)
 {
 	appendPQExpBuffer(buf,
 					  "ANALYZE [ ( %s [, ...] ) ] [ %s [, ...] ]\n"
-					  "ANALYZE [ VERBOSE ] [ %s [, ...] ]\n"
 					  "\n"
 					  "%s\n"
 					  "\n"
@@ -1721,7 +1729,6 @@ sql_help_ANALYZE(PQExpBuffer buf)
 					  "\n"
 					  "    %s [ ( %s [, ...] ) ]",
 					  _("option"),
-					  _("table_and_columns"),
 					  _("table_and_columns"),
 					  _("where option can be one of:"),
 					  _("boolean"),
@@ -1775,15 +1782,11 @@ static void
 sql_help_CLUSTER(PQExpBuffer buf)
 {
 	appendPQExpBuffer(buf,
-					  "CLUSTER [VERBOSE] %s [ USING %s ]\n"
-					  "CLUSTER ( %s [, ...] ) %s [ USING %s ]\n"
-					  "CLUSTER [VERBOSE]\n"
+					  "CLUSTER [ ( %s [, ...] ) ] [ %s [ USING %s ] ]\n"
 					  "\n"
 					  "%s\n"
 					  "\n"
 					  "    VERBOSE [ %s ]",
-					  _("table_name"),
-					  _("index_name"),
 					  _("option"),
 					  _("table_name"),
 					  _("index_name"),
@@ -1964,9 +1967,11 @@ sql_help_COPY(PQExpBuffer buf)
 					  "    QUOTE '%s'\n"
 					  "    ESCAPE '%s'\n"
 					  "    FORCE_QUOTE { ( %s [, ...] ) | * }\n"
-					  "    FORCE_NOT_NULL ( %s [, ...] )\n"
-					  "    FORCE_NULL ( %s [, ...] )\n"
-					  "    ENCODING '%s'",
+					  "    FORCE_NOT_NULL { ( %s [, ...] ) | * }\n"
+					  "    FORCE_NULL { ( %s [, ...] ) | * }\n"
+					  "    ON_ERROR %s\n"
+					  "    ENCODING '%s'\n"
+					  "    LOG_VERBOSITY %s",
 					  _("table_name"),
 					  _("column_name"),
 					  _("filename"),
@@ -1991,7 +1996,9 @@ sql_help_COPY(PQExpBuffer buf)
 					  _("column_name"),
 					  _("column_name"),
 					  _("column_name"),
-					  _("encoding_name"));
+					  _("error_action"),
+					  _("encoding_name"),
+					  _("verbosity"));
 }
 
 static void
@@ -2196,6 +2203,7 @@ sql_help_CREATE_DATABASE(PQExpBuffer buf)
 					  "           [ LOCALE [=] %s ]\n"
 					  "           [ LC_COLLATE [=] %s ]\n"
 					  "           [ LC_CTYPE [=] %s ]\n"
+					  "           [ BUILTIN_LOCALE [=] %s ]\n"
 					  "           [ ICU_LOCALE [=] %s ]\n"
 					  "           [ ICU_RULES [=] %s ]\n"
 					  "           [ LOCALE_PROVIDER [=] %s ]\n"
@@ -2213,6 +2221,7 @@ sql_help_CREATE_DATABASE(PQExpBuffer buf)
 					  _("locale"),
 					  _("lc_collate"),
 					  _("lc_ctype"),
+					  _("builtin_locale"),
 					  _("icu_locale"),
 					  _("icu_rules"),
 					  _("locale_provider"),
@@ -2241,8 +2250,8 @@ sql_help_CREATE_DOMAIN(PQExpBuffer buf)
 					  _("data_type"),
 					  _("collation"),
 					  _("expression"),
-					  _("constraint"),
-					  _("where constraint is:"),
+					  _("domain_constraint"),
+					  _("where domain_constraint is:"),
 					  _("constraint_name"),
 					  _("expression"));
 }
@@ -2662,10 +2671,8 @@ sql_help_CREATE_ROLE(PQExpBuffer buf)
 					  "    | [ ENCRYPTED ] PASSWORD '%s' | PASSWORD NULL\n"
 					  "    | VALID UNTIL '%s'\n"
 					  "    | IN ROLE %s [, ...]\n"
-					  "    | IN GROUP %s [, ...]\n"
 					  "    | ROLE %s [, ...]\n"
 					  "    | ADMIN %s [, ...]\n"
-					  "    | USER %s [, ...]\n"
 					  "    | SYSID %s",
 					  _("name"),
 					  _("option"),
@@ -2673,8 +2680,6 @@ sql_help_CREATE_ROLE(PQExpBuffer buf)
 					  _("connlimit"),
 					  _("password"),
 					  _("timestamp"),
-					  _("role_name"),
-					  _("role_name"),
 					  _("role_name"),
 					  _("role_name"),
 					  _("role_name"),
@@ -3741,7 +3746,6 @@ sql_help_EXPLAIN(PQExpBuffer buf)
 {
 	appendPQExpBuffer(buf,
 					  "EXPLAIN [ ( %s [, ...] ) ] %s\n"
-					  "EXPLAIN [ ANALYZE ] [ VERBOSE ] %s\n"
 					  "\n"
 					  "%s\n"
 					  "\n"
@@ -3751,14 +3755,16 @@ sql_help_EXPLAIN(PQExpBuffer buf)
 					  "    SETTINGS [ %s ]\n"
 					  "    GENERIC_PLAN [ %s ]\n"
 					  "    BUFFERS [ %s ]\n"
+					  "    SERIALIZE [ { NONE | TEXT | BINARY } ]\n"
 					  "    WAL [ %s ]\n"
 					  "    TIMING [ %s ]\n"
 					  "    SUMMARY [ %s ]\n"
+					  "    MEMORY [ %s ]\n"
 					  "    FORMAT { TEXT | XML | JSON | YAML }",
 					  _("option"),
 					  _("statement"),
-					  _("statement"),
 					  _("where option can be one of:"),
+					  _("boolean"),
 					  _("boolean"),
 					  _("boolean"),
 					  _("boolean"),
@@ -3806,7 +3812,7 @@ static void
 sql_help_GRANT(PQExpBuffer buf)
 {
 	appendPQExpBuffer(buf,
-					  "GRANT { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER }\n"
+					  "GRANT { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER | MAINTAIN }\n"
 					  "    [, ...] | ALL [ PRIVILEGES ] }\n"
 					  "    ON { [ TABLE ] %s [, ...]\n"
 					  "         | ALL TABLES IN SCHEMA %s [, ...] }\n"
@@ -4057,6 +4063,7 @@ sql_help_MERGE(PQExpBuffer buf)
 					  "MERGE INTO [ ONLY ] %s [ * ] [ [ AS ] %s ]\n"
 					  "USING %s ON %s\n"
 					  "%s [...]\n"
+					  "[ RETURNING { * | %s [ [ AS ] %s ] } [, ...] ]\n"
 					  "\n"
 					  "%s\n"
 					  "\n"
@@ -4065,7 +4072,8 @@ sql_help_MERGE(PQExpBuffer buf)
 					  "%s\n"
 					  "\n"
 					  "{ WHEN MATCHED [ AND %s ] THEN { %s | %s | DO NOTHING } |\n"
-					  "  WHEN NOT MATCHED [ AND %s ] THEN { %s | DO NOTHING } }\n"
+					  "  WHEN NOT MATCHED BY SOURCE [ AND %s ] THEN { %s | %s | DO NOTHING } |\n"
+					  "  WHEN NOT MATCHED [ BY TARGET ] [ AND %s ] THEN { %s | DO NOTHING } }\n"
 					  "\n"
 					  "%s\n"
 					  "\n"
@@ -4089,11 +4097,16 @@ sql_help_MERGE(PQExpBuffer buf)
 					  _("data_source"),
 					  _("join_condition"),
 					  _("when_clause"),
+					  _("output_expression"),
+					  _("output_name"),
 					  _("where data_source is:"),
 					  _("source_table_name"),
 					  _("source_query"),
 					  _("source_alias"),
 					  _("and when_clause is:"),
+					  _("condition"),
+					  _("merge_update"),
+					  _("merge_delete"),
 					  _("condition"),
 					  _("merge_update"),
 					  _("merge_delete"),
@@ -4234,7 +4247,7 @@ sql_help_REVOKE(PQExpBuffer buf)
 {
 	appendPQExpBuffer(buf,
 					  "REVOKE [ GRANT OPTION FOR ]\n"
-					  "    { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER }\n"
+					  "    { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER | MAINTAIN }\n"
 					  "    [, ...] | ALL [ PRIVILEGES ] }\n"
 					  "    ON { [ TABLE ] %s [, ...]\n"
 					  "         | ALL TABLES IN SCHEMA %s [, ...] }\n"
@@ -4563,7 +4576,7 @@ sql_help_SELECT(PQExpBuffer buf)
 					  "\n"
 					  "%s\n"
 					  "\n"
-					  "    %s [ ( %s [, ...] ) ] AS [ [ NOT ] MATERIALIZED ] ( %s | %s | %s | %s | %s )\n"
+					  "    %s [ ( %s [, ...] ) ] AS [ [ NOT ] MATERIALIZED ] ( %s | %s | %s | %s | %s | %s )\n"
 					  "        [ SEARCH { BREADTH | DEPTH } FIRST BY %s [, ...] SET %s ]\n"
 					  "        [ CYCLE %s [, ...] SET %s [ TO %s DEFAULT %s ] USING %s ]\n"
 					  "\n"
@@ -4584,7 +4597,7 @@ sql_help_SELECT(PQExpBuffer buf)
 					  _("count"),
 					  _("start"),
 					  _("count"),
-					  _("table_name"),
+					  _("from_reference"),
 					  _("where from_item can be one of:"),
 					  _("table_name"),
 					  _("alias"),
@@ -4641,6 +4654,7 @@ sql_help_SELECT(PQExpBuffer buf)
 					  _("insert"),
 					  _("update"),
 					  _("delete"),
+					  _("merge"),
 					  _("column_name"),
 					  _("search_seq_col_name"),
 					  _("column_name"),
@@ -4820,7 +4834,7 @@ sql_help_TABLE(PQExpBuffer buf)
 					  "\n"
 					  "%s\n"
 					  "\n"
-					  "    %s [ ( %s [, ...] ) ] AS [ [ NOT ] MATERIALIZED ] ( %s | %s | %s | %s | %s )\n"
+					  "    %s [ ( %s [, ...] ) ] AS [ [ NOT ] MATERIALIZED ] ( %s | %s | %s | %s | %s | %s )\n"
 					  "        [ SEARCH { BREADTH | DEPTH } FIRST BY %s [, ...] SET %s ]\n"
 					  "        [ CYCLE %s [, ...] SET %s [ TO %s DEFAULT %s ] USING %s ]\n"
 					  "\n"
@@ -4841,7 +4855,7 @@ sql_help_TABLE(PQExpBuffer buf)
 					  _("count"),
 					  _("start"),
 					  _("count"),
-					  _("table_name"),
+					  _("from_reference"),
 					  _("where from_item can be one of:"),
 					  _("table_name"),
 					  _("alias"),
@@ -4898,6 +4912,7 @@ sql_help_TABLE(PQExpBuffer buf)
 					  _("insert"),
 					  _("update"),
 					  _("delete"),
+					  _("merge"),
 					  _("column_name"),
 					  _("search_seq_col_name"),
 					  _("column_name"),
@@ -4959,7 +4974,6 @@ sql_help_VACUUM(PQExpBuffer buf)
 {
 	appendPQExpBuffer(buf,
 					  "VACUUM [ ( %s [, ...] ) ] [ %s [, ...] ]\n"
-					  "VACUUM [ FULL ] [ FREEZE ] [ VERBOSE ] [ ANALYZE ] [ %s [, ...] ]\n"
 					  "\n"
 					  "%s\n"
 					  "\n"
@@ -4982,7 +4996,6 @@ sql_help_VACUUM(PQExpBuffer buf)
 					  "\n"
 					  "    %s [ ( %s [, ...] ) ]",
 					  _("option"),
-					  _("table_and_columns"),
 					  _("table_and_columns"),
 					  _("where option can be one of:"),
 					  _("boolean"),
@@ -5066,7 +5079,7 @@ sql_help_WITH(PQExpBuffer buf)
 					  "\n"
 					  "%s\n"
 					  "\n"
-					  "    %s [ ( %s [, ...] ) ] AS [ [ NOT ] MATERIALIZED ] ( %s | %s | %s | %s | %s )\n"
+					  "    %s [ ( %s [, ...] ) ] AS [ [ NOT ] MATERIALIZED ] ( %s | %s | %s | %s | %s | %s )\n"
 					  "        [ SEARCH { BREADTH | DEPTH } FIRST BY %s [, ...] SET %s ]\n"
 					  "        [ CYCLE %s [, ...] SET %s [ TO %s DEFAULT %s ] USING %s ]\n"
 					  "\n"
@@ -5087,7 +5100,7 @@ sql_help_WITH(PQExpBuffer buf)
 					  _("count"),
 					  _("start"),
 					  _("count"),
-					  _("table_name"),
+					  _("from_reference"),
 					  _("where from_item can be one of:"),
 					  _("table_name"),
 					  _("alias"),
@@ -5144,6 +5157,7 @@ sql_help_WITH(PQExpBuffer buf)
 					  _("insert"),
 					  _("update"),
 					  _("delete"),
+					  _("merge"),
 					  _("column_name"),
 					  _("search_seq_col_name"),
 					  _("column_name"),
@@ -5262,7 +5276,7 @@ const struct _helpStruct QL_HELP[] = {
 		N_("change the definition of an operator"),
 		"sql-alteroperator",
 		sql_help_ALTER_OPERATOR,
-	9},
+	13},
 
 	{"ALTER OPERATOR CLASS",
 		N_("change the definition of an operator class"),
@@ -5352,7 +5366,7 @@ const struct _helpStruct QL_HELP[] = {
 		N_("change the definition of a table"),
 		"sql-altertable",
 		sql_help_ALTER_TABLE,
-	117},
+	118},
 
 	{"ALTER TABLESPACE",
 		N_("change the definition of a tablespace"),
@@ -5418,7 +5432,7 @@ const struct _helpStruct QL_HELP[] = {
 		N_("collect statistics about a database"),
 		"sql-analyze",
 		sql_help_ANALYZE,
-	11},
+	10},
 
 	{"BEGIN",
 		N_("start a transaction block"),
@@ -5448,7 +5462,7 @@ const struct _helpStruct QL_HELP[] = {
 		N_("cluster a table according to an index"),
 		"sql-cluster",
 		sql_help_CLUSTER,
-	6},
+	4},
 
 	{"COMMENT",
 		N_("define or change the comment of an object"),
@@ -5472,7 +5486,7 @@ const struct _helpStruct QL_HELP[] = {
 		N_("copy data between a file and a table"),
 		"sql-copy",
 		sql_help_COPY,
-	22},
+	24},
 
 	{"CREATE ACCESS METHOD",
 		N_("define a new access method"),
@@ -5508,7 +5522,7 @@ const struct _helpStruct QL_HELP[] = {
 		N_("create a new database"),
 		"sql-createdatabase",
 		sql_help_CREATE_DATABASE,
-	16},
+	17},
 
 	{"CREATE DOMAIN",
 		N_("define a new domain"),
@@ -5610,7 +5624,7 @@ const struct _helpStruct QL_HELP[] = {
 		N_("define a new database role"),
 		"sql-createrole",
 		sql_help_CREATE_ROLE,
-	19},
+	17},
 
 	{"CREATE RULE",
 		N_("define a new rewrite rule"),
@@ -6030,7 +6044,7 @@ const struct _helpStruct QL_HELP[] = {
 		N_("show the execution plan of a statement"),
 		"sql-explain",
 		sql_help_EXPLAIN,
-	14},
+	15},
 
 	{"FETCH",
 		N_("retrieve rows from a query using a cursor"),
@@ -6078,7 +6092,7 @@ const struct _helpStruct QL_HELP[] = {
 		N_("conditionally insert, update, or delete rows of a table"),
 		"sql-merge",
 		sql_help_MERGE,
-	29},
+	31},
 
 	{"MOVE",
 		N_("position a cursor"),
@@ -6252,7 +6266,7 @@ const struct _helpStruct QL_HELP[] = {
 		N_("garbage-collect and optionally analyze a database"),
 		"sql-vacuum",
 		sql_help_VACUUM,
-	22},
+	21},
 
 	{"VALUES",
 		N_("compute a set of rows"),

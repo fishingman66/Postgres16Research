@@ -3,7 +3,7 @@
  * queryjumblefuncs.funcs.c
  *    Generated node infrastructure code
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  * NOTES
@@ -65,6 +65,7 @@ _jumbleTableFunc(JumbleState *jstate, Node *node)
 {
 	TableFunc *expr = (TableFunc *) node;
 
+	JUMBLE_FIELD(functype);
 	JUMBLE_NODE(docexpr);
 	JUMBLE_NODE(rowexpr);
 	JUMBLE_NODE(colexprs);
@@ -144,6 +145,25 @@ _jumbleWindowFunc(JumbleState *jstate, Node *node)
 	JUMBLE_NODE(args);
 	JUMBLE_NODE(aggfilter);
 	JUMBLE_FIELD(winref);
+}
+
+static void
+_jumbleWindowFuncRunCondition(JumbleState *jstate, Node *node)
+{
+	WindowFuncRunCondition *expr = (WindowFuncRunCondition *) node;
+
+	JUMBLE_FIELD(opno);
+	JUMBLE_FIELD(wfunc_left);
+	JUMBLE_NODE(arg);
+}
+
+static void
+_jumbleMergeSupportFunc(JumbleState *jstate, Node *node)
+{
+	MergeSupportFunc *expr = (MergeSupportFunc *) node;
+
+	JUMBLE_FIELD(msftype);
+	JUMBLE_FIELD(msfcollid);
 }
 
 static void
@@ -441,6 +461,68 @@ _jumbleJsonIsPredicate(JumbleState *jstate, Node *node)
 }
 
 static void
+_jumbleJsonBehavior(JumbleState *jstate, Node *node)
+{
+	JsonBehavior *expr = (JsonBehavior *) node;
+
+	JUMBLE_FIELD(btype);
+	JUMBLE_NODE(expr);
+	JUMBLE_FIELD(coerce);
+}
+
+static void
+_jumbleJsonExpr(JumbleState *jstate, Node *node)
+{
+	JsonExpr *expr = (JsonExpr *) node;
+
+	JUMBLE_FIELD(op);
+	JUMBLE_STRING(column_name);
+	JUMBLE_NODE(formatted_expr);
+	JUMBLE_NODE(format);
+	JUMBLE_NODE(path_spec);
+	JUMBLE_NODE(returning);
+	JUMBLE_NODE(passing_names);
+	JUMBLE_NODE(passing_values);
+	JUMBLE_NODE(on_empty);
+	JUMBLE_NODE(on_error);
+	JUMBLE_FIELD(use_io_coercion);
+	JUMBLE_FIELD(use_json_coercion);
+	JUMBLE_FIELD(wrapper);
+	JUMBLE_FIELD(omit_quotes);
+	JUMBLE_FIELD(collation);
+}
+
+static void
+_jumbleJsonTablePath(JumbleState *jstate, Node *node)
+{
+	JsonTablePath *expr = (JsonTablePath *) node;
+
+	JUMBLE_NODE(value);
+	JUMBLE_STRING(name);
+}
+
+static void
+_jumbleJsonTablePathScan(JumbleState *jstate, Node *node)
+{
+	JsonTablePathScan *expr = (JsonTablePathScan *) node;
+
+	JUMBLE_NODE(path);
+	JUMBLE_FIELD(errorOnError);
+	JUMBLE_NODE(child);
+	JUMBLE_FIELD(colMin);
+	JUMBLE_FIELD(colMax);
+}
+
+static void
+_jumbleJsonTableSiblingJoin(JumbleState *jstate, Node *node)
+{
+	JsonTableSiblingJoin *expr = (JsonTableSiblingJoin *) node;
+
+	JUMBLE_NODE(lplan);
+	JUMBLE_NODE(rplan);
+}
+
+static void
 _jumbleNullTest(JumbleState *jstate, Node *node)
 {
 	NullTest *expr = (NullTest *) node;
@@ -456,6 +538,17 @@ _jumbleBooleanTest(JumbleState *jstate, Node *node)
 
 	JUMBLE_NODE(arg);
 	JUMBLE_FIELD(booltesttype);
+}
+
+static void
+_jumbleMergeAction(JumbleState *jstate, Node *node)
+{
+	MergeAction *expr = (MergeAction *) node;
+
+	JUMBLE_FIELD(matchKind);
+	JUMBLE_FIELD(commandType);
+	JUMBLE_NODE(qual);
+	JUMBLE_NODE(targetList);
 }
 
 static void
@@ -578,6 +671,7 @@ _jumbleQuery(JumbleState *jstate, Node *node)
 	JUMBLE_NODE(rtable);
 	JUMBLE_NODE(jointree);
 	JUMBLE_NODE(mergeActionList);
+	JUMBLE_NODE(mergeJoinCondition);
 	JUMBLE_NODE(targetList);
 	JUMBLE_NODE(onConflict);
 	JUMBLE_NODE(returningList);
@@ -946,6 +1040,14 @@ _jumblePartitionRangeDatum(JumbleState *jstate, Node *node)
 }
 
 static void
+_jumbleSinglePartitionSpec(JumbleState *jstate, Node *node)
+{
+	SinglePartitionSpec *expr = (SinglePartitionSpec *) node;
+
+	(void) expr;
+}
+
+static void
 _jumblePartitionCmd(JumbleState *jstate, Node *node)
 {
 	PartitionCmd *expr = (PartitionCmd *) node;
@@ -953,6 +1055,26 @@ _jumblePartitionCmd(JumbleState *jstate, Node *node)
 	JUMBLE_NODE(name);
 	JUMBLE_NODE(bound);
 	JUMBLE_FIELD(concurrent);
+}
+
+static void
+_jumbleRangeTblEntry(JumbleState *jstate, Node *node)
+{
+	RangeTblEntry *expr = (RangeTblEntry *) node;
+
+	JUMBLE_FIELD(rtekind);
+	JUMBLE_FIELD(relid);
+	JUMBLE_FIELD(inh);
+	JUMBLE_NODE(tablesample);
+	JUMBLE_NODE(subquery);
+	JUMBLE_FIELD(jointype);
+	JUMBLE_NODE(functions);
+	JUMBLE_FIELD(funcordinality);
+	JUMBLE_NODE(tablefunc);
+	JUMBLE_NODE(values_lists);
+	JUMBLE_STRING(ctename);
+	JUMBLE_FIELD(ctelevelsup);
+	JUMBLE_STRING(enrname);
 }
 
 static void
@@ -1113,23 +1235,12 @@ _jumbleMergeWhenClause(JumbleState *jstate, Node *node)
 {
 	MergeWhenClause *expr = (MergeWhenClause *) node;
 
-	JUMBLE_FIELD(matched);
+	JUMBLE_FIELD(matchKind);
 	JUMBLE_FIELD(commandType);
 	JUMBLE_FIELD(override);
 	JUMBLE_NODE(condition);
 	JUMBLE_NODE(targetList);
 	JUMBLE_NODE(values);
-}
-
-static void
-_jumbleMergeAction(JumbleState *jstate, Node *node)
-{
-	MergeAction *expr = (MergeAction *) node;
-
-	JUMBLE_FIELD(matched);
-	JUMBLE_FIELD(commandType);
-	JUMBLE_NODE(qual);
-	JUMBLE_NODE(targetList);
 }
 
 static void
@@ -1152,12 +1263,106 @@ _jumbleJsonOutput(JumbleState *jstate, Node *node)
 }
 
 static void
+_jumbleJsonArgument(JumbleState *jstate, Node *node)
+{
+	JsonArgument *expr = (JsonArgument *) node;
+
+	JUMBLE_NODE(val);
+	JUMBLE_STRING(name);
+}
+
+static void
+_jumbleJsonFuncExpr(JumbleState *jstate, Node *node)
+{
+	JsonFuncExpr *expr = (JsonFuncExpr *) node;
+
+	JUMBLE_FIELD(op);
+	JUMBLE_STRING(column_name);
+	JUMBLE_NODE(context_item);
+	JUMBLE_NODE(pathspec);
+	JUMBLE_NODE(passing);
+	JUMBLE_NODE(output);
+	JUMBLE_NODE(on_empty);
+	JUMBLE_NODE(on_error);
+	JUMBLE_FIELD(wrapper);
+	JUMBLE_FIELD(quotes);
+}
+
+static void
+_jumbleJsonTablePathSpec(JumbleState *jstate, Node *node)
+{
+	JsonTablePathSpec *expr = (JsonTablePathSpec *) node;
+
+	JUMBLE_NODE(string);
+	JUMBLE_STRING(name);
+}
+
+static void
+_jumbleJsonTable(JumbleState *jstate, Node *node)
+{
+	JsonTable *expr = (JsonTable *) node;
+
+	JUMBLE_NODE(context_item);
+	JUMBLE_NODE(pathspec);
+	JUMBLE_NODE(passing);
+	JUMBLE_NODE(columns);
+	JUMBLE_NODE(on_error);
+	JUMBLE_NODE(alias);
+	JUMBLE_FIELD(lateral);
+}
+
+static void
+_jumbleJsonTableColumn(JumbleState *jstate, Node *node)
+{
+	JsonTableColumn *expr = (JsonTableColumn *) node;
+
+	JUMBLE_FIELD(coltype);
+	JUMBLE_STRING(name);
+	JUMBLE_NODE(typeName);
+	JUMBLE_NODE(pathspec);
+	JUMBLE_NODE(format);
+	JUMBLE_FIELD(wrapper);
+	JUMBLE_FIELD(quotes);
+	JUMBLE_NODE(columns);
+	JUMBLE_NODE(on_empty);
+	JUMBLE_NODE(on_error);
+}
+
+static void
 _jumbleJsonKeyValue(JumbleState *jstate, Node *node)
 {
 	JsonKeyValue *expr = (JsonKeyValue *) node;
 
 	JUMBLE_NODE(key);
 	JUMBLE_NODE(value);
+}
+
+static void
+_jumbleJsonParseExpr(JumbleState *jstate, Node *node)
+{
+	JsonParseExpr *expr = (JsonParseExpr *) node;
+
+	JUMBLE_NODE(expr);
+	JUMBLE_NODE(output);
+	JUMBLE_FIELD(unique_keys);
+}
+
+static void
+_jumbleJsonScalarExpr(JumbleState *jstate, Node *node)
+{
+	JsonScalarExpr *expr = (JsonScalarExpr *) node;
+
+	JUMBLE_NODE(expr);
+	JUMBLE_NODE(output);
+}
+
+static void
+_jumbleJsonSerializeExpr(JumbleState *jstate, Node *node)
+{
+	JsonSerializeExpr *expr = (JsonSerializeExpr *) node;
+
+	JUMBLE_NODE(expr);
+	JUMBLE_NODE(output);
 }
 
 static void
@@ -1272,6 +1477,7 @@ _jumbleMergeStmt(JumbleState *jstate, Node *node)
 	JUMBLE_NODE(sourceRelation);
 	JUMBLE_NODE(joinCondition);
 	JUMBLE_NODE(mergeWhenClauses);
+	JUMBLE_NODE(returningList);
 	JUMBLE_NODE(withClause);
 }
 
@@ -1519,10 +1725,13 @@ _jumbleConstraint(JumbleState *jstate, Node *node)
 	JUMBLE_STRING(conname);
 	JUMBLE_FIELD(deferrable);
 	JUMBLE_FIELD(initdeferred);
+	JUMBLE_FIELD(skip_validation);
+	JUMBLE_FIELD(initially_valid);
 	JUMBLE_FIELD(is_no_inherit);
 	JUMBLE_NODE(raw_expr);
 	JUMBLE_STRING(cooked_expr);
 	JUMBLE_FIELD(generated_when);
+	JUMBLE_FIELD(inhcount);
 	JUMBLE_FIELD(nulls_not_distinct);
 	JUMBLE_NODE(keys);
 	JUMBLE_NODE(including);
@@ -1542,8 +1751,6 @@ _jumbleConstraint(JumbleState *jstate, Node *node)
 	JUMBLE_NODE(fk_del_set_cols);
 	JUMBLE_NODE(old_conpfeqop);
 	JUMBLE_FIELD(old_pktable_oid);
-	JUMBLE_FIELD(skip_validation);
-	JUMBLE_FIELD(initially_valid);
 }
 
 static void
@@ -2083,7 +2290,7 @@ _jumbleAlterStatsStmt(JumbleState *jstate, Node *node)
 	AlterStatsStmt *expr = (AlterStatsStmt *) node;
 
 	JUMBLE_NODE(defnames);
-	JUMBLE_FIELD(stxstattarget);
+	JUMBLE_NODE(stxstattarget);
 	JUMBLE_FIELD(missing_ok);
 }
 
@@ -2135,7 +2342,8 @@ _jumbleCallStmt(JumbleState *jstate, Node *node)
 {
 	CallStmt *expr = (CallStmt *) node;
 
-	JUMBLE_NODE(funccall);
+	JUMBLE_NODE(funcexpr);
+	JUMBLE_NODE(outargs);
 }
 
 static void
@@ -2252,9 +2460,8 @@ _jumbleTransactionStmt(JumbleState *jstate, Node *node)
 
 	JUMBLE_FIELD(kind);
 	JUMBLE_NODE(options);
-	JUMBLE_STRING(savepoint_name);
-	JUMBLE_STRING(gid);
 	JUMBLE_FIELD(chain);
+	JUMBLE_LOCATION(location);
 }
 
 static void
@@ -2538,7 +2745,8 @@ _jumbleDeallocateStmt(JumbleState *jstate, Node *node)
 {
 	DeallocateStmt *expr = (DeallocateStmt *) node;
 
-	JUMBLE_STRING(name);
+	JUMBLE_FIELD(isall);
+	JUMBLE_LOCATION(location);
 }
 
 static void
@@ -2656,6 +2864,15 @@ _jumbleDropSubscriptionStmt(JumbleState *jstate, Node *node)
 	JUMBLE_STRING(subname);
 	JUMBLE_FIELD(missing_ok);
 	JUMBLE_FIELD(behavior);
+}
+
+static void
+_jumbleGroupByOrdering(JumbleState *jstate, Node *node)
+{
+	GroupByOrdering *expr = (GroupByOrdering *) node;
+
+	JUMBLE_NODE(pathkeys);
+	JUMBLE_NODE(clauses);
 }
 
 static void

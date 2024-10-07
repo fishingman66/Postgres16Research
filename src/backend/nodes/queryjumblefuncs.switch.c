@@ -3,7 +3,7 @@
  * queryjumblefuncs.switch.c
  *    Generated node infrastructure code
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  * NOTES
@@ -44,6 +44,12 @@
 				break;
 			case T_WindowFunc:
 				_jumbleWindowFunc(jstate, expr);
+				break;
+			case T_WindowFuncRunCondition:
+				_jumbleWindowFuncRunCondition(jstate, expr);
+				break;
+			case T_MergeSupportFunc:
+				_jumbleMergeSupportFunc(jstate, expr);
 				break;
 			case T_SubscriptingRef:
 				_jumbleSubscriptingRef(jstate, expr);
@@ -138,11 +144,29 @@
 			case T_JsonIsPredicate:
 				_jumbleJsonIsPredicate(jstate, expr);
 				break;
+			case T_JsonBehavior:
+				_jumbleJsonBehavior(jstate, expr);
+				break;
+			case T_JsonExpr:
+				_jumbleJsonExpr(jstate, expr);
+				break;
+			case T_JsonTablePath:
+				_jumbleJsonTablePath(jstate, expr);
+				break;
+			case T_JsonTablePathScan:
+				_jumbleJsonTablePathScan(jstate, expr);
+				break;
+			case T_JsonTableSiblingJoin:
+				_jumbleJsonTableSiblingJoin(jstate, expr);
+				break;
 			case T_NullTest:
 				_jumbleNullTest(jstate, expr);
 				break;
 			case T_BooleanTest:
 				_jumbleBooleanTest(jstate, expr);
+				break;
+			case T_MergeAction:
+				_jumbleMergeAction(jstate, expr);
 				break;
 			case T_CoerceToDomain:
 				_jumbleCoerceToDomain(jstate, expr);
@@ -276,6 +300,9 @@
 			case T_PartitionRangeDatum:
 				_jumblePartitionRangeDatum(jstate, expr);
 				break;
+			case T_SinglePartitionSpec:
+				_jumbleSinglePartitionSpec(jstate, expr);
+				break;
 			case T_PartitionCmd:
 				_jumblePartitionCmd(jstate, expr);
 				break;
@@ -327,17 +354,38 @@
 			case T_MergeWhenClause:
 				_jumbleMergeWhenClause(jstate, expr);
 				break;
-			case T_MergeAction:
-				_jumbleMergeAction(jstate, expr);
-				break;
 			case T_TriggerTransition:
 				_jumbleTriggerTransition(jstate, expr);
 				break;
 			case T_JsonOutput:
 				_jumbleJsonOutput(jstate, expr);
 				break;
+			case T_JsonArgument:
+				_jumbleJsonArgument(jstate, expr);
+				break;
+			case T_JsonFuncExpr:
+				_jumbleJsonFuncExpr(jstate, expr);
+				break;
+			case T_JsonTablePathSpec:
+				_jumbleJsonTablePathSpec(jstate, expr);
+				break;
+			case T_JsonTable:
+				_jumbleJsonTable(jstate, expr);
+				break;
+			case T_JsonTableColumn:
+				_jumbleJsonTableColumn(jstate, expr);
+				break;
 			case T_JsonKeyValue:
 				_jumbleJsonKeyValue(jstate, expr);
+				break;
+			case T_JsonParseExpr:
+				_jumbleJsonParseExpr(jstate, expr);
+				break;
+			case T_JsonScalarExpr:
+				_jumbleJsonScalarExpr(jstate, expr);
+				break;
+			case T_JsonSerializeExpr:
+				_jumbleJsonSerializeExpr(jstate, expr);
 				break;
 			case T_JsonObjectConstructor:
 				_jumbleJsonObjectConstructor(jstate, expr);
@@ -734,6 +782,9 @@
 				break;
 			case T_DropSubscriptionStmt:
 				_jumbleDropSubscriptionStmt(jstate, expr);
+				break;
+			case T_GroupByOrdering:
+				_jumbleGroupByOrdering(jstate, expr);
 				break;
 			case T_ExtensibleNode:
 				_jumbleExtensibleNode(jstate, expr);

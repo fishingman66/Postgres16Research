@@ -8,7 +8,7 @@
  *
  * See fe_utils/psqlscan_int.h for additional commentary.
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  * IDENTIFICATION
@@ -18,6 +18,8 @@
  */
 #include "postgres_fe.h"
 
+#include <ctype.h>
+
 #include "common.h"
 #include "psqlscanslash.h"
 
@@ -26,7 +28,7 @@
 
 #include "libpq-fe.h"
 
-#line 29 "psqlscanslash.c"
+#line 31 "psqlscanslash.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -1112,7 +1114,7 @@ static const flex_int16_t yy_accept[79] =
 static const YY_CHAR yy_ec[256] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
-        1,    2,    2,    1,    1,    1,    1,    1,    1,    1,
+        2,    2,    2,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    2,    1,    4,    1,    1,    1,    1,    5,    1,
         1,    1,    1,    1,    1,    1,    1,    6,    6,    6,
@@ -1150,7 +1152,7 @@ static const YY_CHAR yy_ec[256] =
 #define YY_RESTORE_YY_MORE_OFFSET
 #line 1 "psqlscanslash.l"
 
-#line 31 "psqlscanslash.l"
+#line 33 "psqlscanslash.l"
 #include "fe_utils/psqlscan_int.h"
 
 /*
@@ -1195,7 +1197,7 @@ extern void slash_yyset_column(int column_no, yyscan_t yyscanner);
 
 /* LCOV_EXCL_START */
 
-#line 1198 "psqlscanslash.c"
+#line 1200 "psqlscanslash.c"
 /* Except for the prefix, these options should match psqlscan.l */
 #define YY_NO_INPUT 1
 /*
@@ -1211,7 +1213,7 @@ extern void slash_yyset_column(int column_no, yyscan_t yyscanner);
 /*
  * Assorted character class definitions that should match psqlscan.l.
  */
-#line 1214 "psqlscanslash.c"
+#line 1216 "psqlscanslash.c"
 
 #define INITIAL 0
 #define xslashcmd 1
@@ -1491,11 +1493,11 @@ YY_DECL
 		}
 
 	{
-#line 121 "psqlscanslash.l"
+#line 123 "psqlscanslash.l"
 
 
 
-#line 125 "psqlscanslash.l"
+#line 127 "psqlscanslash.l"
 		/* Declare some local variables inside yylex(), for convenience */
 		PsqlScanState cur_state = yyextra;
 		PQExpBuffer output_buf = cur_state->output_buf;
@@ -1515,7 +1517,7 @@ YY_DECL
 	 * lexer; but if we are, just spit data to the output_buf until EOF.
 	 */
 
-#line 1518 "psqlscanslash.c"
+#line 1520 "psqlscanslash.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1548,7 +1550,7 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 144 "psqlscanslash.l"
+#line 146 "psqlscanslash.l"
 { ECHO; }
 	YY_BREAK
 /*
@@ -1559,7 +1561,7 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 153 "psqlscanslash.l"
+#line 155 "psqlscanslash.l"
 {
 					yyless(0);
 					cur_state->start_state = YY_START;
@@ -1568,7 +1570,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 159 "psqlscanslash.l"
+#line 161 "psqlscanslash.l"
 { ECHO; }
 	YY_BREAK
 
@@ -1581,12 +1583,12 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 170 "psqlscanslash.l"
+#line 172 "psqlscanslash.l"
 { }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 172 "psqlscanslash.l"
+#line 174 "psqlscanslash.l"
 {
 					if (option_type == OT_FILEPIPE)
 					{
@@ -1604,7 +1606,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 187 "psqlscanslash.l"
+#line 189 "psqlscanslash.l"
 {
 					yyless(0);
 					BEGIN(xslasharg);
@@ -1622,7 +1624,7 @@ YY_RULE_SETUP
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 203 "psqlscanslash.l"
+#line 205 "psqlscanslash.l"
 {
 					/*
 					 * Unquoted space is end of arg; do not eat.  Likewise
@@ -1640,7 +1642,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 218 "psqlscanslash.l"
+#line 220 "psqlscanslash.l"
 {
 					*option_quote = '\'';
 					unquoted_option_chars = 0;
@@ -1649,7 +1651,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 224 "psqlscanslash.l"
+#line 226 "psqlscanslash.l"
 {
 					backtick_start_offset = output_buf->len;
 					*option_quote = '`';
@@ -1659,7 +1661,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 231 "psqlscanslash.l"
+#line 233 "psqlscanslash.l"
 {
 					ECHO;
 					*option_quote = '"';
@@ -1669,7 +1671,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 238 "psqlscanslash.l"
+#line 240 "psqlscanslash.l"
 {
 					/* Possible psql variable substitution */
 					if (cur_state->callbacks->get_variable == NULL)
@@ -1709,7 +1711,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 275 "psqlscanslash.l"
+#line 277 "psqlscanslash.l"
 {
 					psqlscan_escape_variable(cur_state, yytext, yyleng,
 											 PQUOTE_SQL_LITERAL);
@@ -1719,7 +1721,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 283 "psqlscanslash.l"
+#line 285 "psqlscanslash.l"
 {
 					psqlscan_escape_variable(cur_state, yytext, yyleng,
 											 PQUOTE_SQL_IDENT);
@@ -1729,14 +1731,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 290 "psqlscanslash.l"
+#line 292 "psqlscanslash.l"
 {
 					psqlscan_test_variable(cur_state, yytext, yyleng);
 				}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 294 "psqlscanslash.l"
+#line 296 "psqlscanslash.l"
 {
 					/* Throw back everything but the colon */
 					yyless(1);
@@ -1746,7 +1748,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 301 "psqlscanslash.l"
+#line 303 "psqlscanslash.l"
 {
 					/* Throw back everything but the colon */
 					yyless(1);
@@ -1756,7 +1758,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 308 "psqlscanslash.l"
+#line 310 "psqlscanslash.l"
 {
 					/* Throw back everything but the colon */
 					yyless(1);
@@ -1766,7 +1768,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 315 "psqlscanslash.l"
+#line 317 "psqlscanslash.l"
 {
 					/* Throw back everything but the colon */
 					yyless(1);
@@ -1776,7 +1778,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 322 "psqlscanslash.l"
+#line 324 "psqlscanslash.l"
 {
 					unquoted_option_chars++;
 					ECHO;
@@ -1790,42 +1792,42 @@ YY_RULE_SETUP
 	 */
 case 20:
 YY_RULE_SETUP
-#line 335 "psqlscanslash.l"
+#line 337 "psqlscanslash.l"
 { BEGIN(xslasharg); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 337 "psqlscanslash.l"
+#line 339 "psqlscanslash.l"
 { appendPQExpBufferChar(output_buf, '\''); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 339 "psqlscanslash.l"
+#line 341 "psqlscanslash.l"
 { appendPQExpBufferChar(output_buf, '\n'); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 340 "psqlscanslash.l"
+#line 342 "psqlscanslash.l"
 { appendPQExpBufferChar(output_buf, '\t'); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 341 "psqlscanslash.l"
+#line 343 "psqlscanslash.l"
 { appendPQExpBufferChar(output_buf, '\b'); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 342 "psqlscanslash.l"
+#line 344 "psqlscanslash.l"
 { appendPQExpBufferChar(output_buf, '\r'); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 343 "psqlscanslash.l"
+#line 345 "psqlscanslash.l"
 { appendPQExpBufferChar(output_buf, '\f'); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 345 "psqlscanslash.l"
+#line 347 "psqlscanslash.l"
 {
 					/* octal case */
 					appendPQExpBufferChar(output_buf,
@@ -1834,7 +1836,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 351 "psqlscanslash.l"
+#line 353 "psqlscanslash.l"
 {
 					/* hex case */
 					appendPQExpBufferChar(output_buf,
@@ -1843,13 +1845,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 357 "psqlscanslash.l"
+#line 359 "psqlscanslash.l"
 { psqlscan_emit(cur_state, yytext + 1, 1); }
 	YY_BREAK
 case 30:
 /* rule 30 can match eol */
 YY_RULE_SETUP
-#line 359 "psqlscanslash.l"
+#line 361 "psqlscanslash.l"
 { ECHO; }
 	YY_BREAK
 
@@ -1860,7 +1862,7 @@ YY_RULE_SETUP
 	 */
 case 31:
 YY_RULE_SETUP
-#line 369 "psqlscanslash.l"
+#line 371 "psqlscanslash.l"
 {
 					/* In an inactive \if branch, don't evaluate the command */
 					if (cur_state->cb_passthrough == NULL ||
@@ -1871,7 +1873,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 377 "psqlscanslash.l"
+#line 379 "psqlscanslash.l"
 {
 					/* Possible psql variable substitution */
 					if (cur_state->callbacks->get_variable == NULL)
@@ -1901,7 +1903,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 404 "psqlscanslash.l"
+#line 406 "psqlscanslash.l"
 {
 					psqlscan_escape_variable(cur_state, yytext, yyleng,
 											 PQUOTE_SHELL_ARG);
@@ -1909,7 +1911,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 409 "psqlscanslash.l"
+#line 411 "psqlscanslash.l"
 {
 					/* Throw back everything but the colon */
 					yyless(1);
@@ -1919,7 +1921,7 @@ YY_RULE_SETUP
 case 35:
 /* rule 35 can match eol */
 YY_RULE_SETUP
-#line 415 "psqlscanslash.l"
+#line 417 "psqlscanslash.l"
 { ECHO; }
 	YY_BREAK
 
@@ -1927,7 +1929,7 @@ YY_RULE_SETUP
 /* double-quoted text: copy verbatim, including the double quotes */
 case 36:
 YY_RULE_SETUP
-#line 422 "psqlscanslash.l"
+#line 424 "psqlscanslash.l"
 {
 					ECHO;
 					BEGIN(xslasharg);
@@ -1936,7 +1938,7 @@ YY_RULE_SETUP
 case 37:
 /* rule 37 can match eol */
 YY_RULE_SETUP
-#line 427 "psqlscanslash.l"
+#line 429 "psqlscanslash.l"
 { ECHO; }
 	YY_BREAK
 
@@ -1946,7 +1948,7 @@ YY_RULE_SETUP
 case 38:
 /* rule 38 can match eol */
 YY_RULE_SETUP
-#line 435 "psqlscanslash.l"
+#line 437 "psqlscanslash.l"
 {
 					if (output_buf->len > 0)
 						ECHO;
@@ -1954,7 +1956,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 440 "psqlscanslash.l"
+#line 442 "psqlscanslash.l"
 { ECHO; }
 	YY_BREAK
 
@@ -1962,7 +1964,7 @@ YY_RULE_SETUP
 /* at end of command, eat a double backslash, but not anything else */
 case 40:
 YY_RULE_SETUP
-#line 447 "psqlscanslash.l"
+#line 449 "psqlscanslash.l"
 {
 					cur_state->start_state = YY_START;
 					return LEXRES_OK;
@@ -1971,7 +1973,7 @@ YY_RULE_SETUP
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
-#line 452 "psqlscanslash.l"
+#line 454 "psqlscanslash.l"
 {
 					yyless(0);
 					cur_state->start_state = YY_START;
@@ -1988,7 +1990,7 @@ case YY_STATE_EOF(xslashbackquote):
 case YY_STATE_EOF(xslashdquote):
 case YY_STATE_EOF(xslashwholeline):
 case YY_STATE_EOF(xslashend):
-#line 460 "psqlscanslash.l"
+#line 462 "psqlscanslash.l"
 {
 					if (cur_state->buffer_stack == NULL)
 					{
@@ -2006,10 +2008,10 @@ case YY_STATE_EOF(xslashend):
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 475 "psqlscanslash.l"
+#line 477 "psqlscanslash.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2012 "psqlscanslash.c"
+#line 2014 "psqlscanslash.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -3125,7 +3127,7 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 475 "psqlscanslash.l"
+#line 477 "psqlscanslash.l"
 
 
 /* LCOV_EXCL_STOP */
@@ -3263,7 +3265,7 @@ psql_scan_slash_option(PsqlScanState state,
 			/* empty arg */
 			break;
 		case xslasharg:
-			/* Strip any unquoted trailing semi-colons if requested */
+			/* Strip any unquoted trailing semicolons if requested */
 			if (semicolon)
 			{
 				while (unquoted_option_chars-- > 0 &&
@@ -3295,7 +3297,22 @@ psql_scan_slash_option(PsqlScanState state,
 			termPQExpBuffer(&mybuf);
 			return NULL;
 		case xslashwholeline:
-			/* always okay */
+			/*
+			 * In whole-line mode, we interpret semicolon = true as stripping
+			 * trailing whitespace as well as semicolons; this gives the
+			 * nearest equivalent to what semicolon = true does in normal
+			 * mode.  Note there's no concept of quoting in this mode.
+			 */
+			if (semicolon)
+			{
+				while (mybuf.len > 0 &&
+					   (mybuf.data[mybuf.len - 1] == ';' ||
+						(isascii((unsigned char) mybuf.data[mybuf.len - 1]) &&
+						 isspace((unsigned char) mybuf.data[mybuf.len - 1]))))
+				{
+					mybuf.data[--mybuf.len] = '\0';
+				}
+			}
 			break;
 		default:
 			/* can't get here */

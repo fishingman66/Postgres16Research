@@ -81,7 +81,7 @@
  *
  * Transforms tokenized jsonpath into tree of JsonPathParseItem structs.
  *
- * Copyright (c) 2019-2023, PostgreSQL Global Development Group
+ * Copyright (c) 2019-2024, PostgreSQL Global Development Group
  *
  * IDENTIFICATION
  *	src/backend/utils/adt/jsonpath_gram.y
@@ -196,46 +196,62 @@ enum yysymbol_kind_t
   YYSYMBOL_CEILING_P = 37,                 /* CEILING_P  */
   YYSYMBOL_KEYVALUE_P = 38,                /* KEYVALUE_P  */
   YYSYMBOL_DATETIME_P = 39,                /* DATETIME_P  */
-  YYSYMBOL_40_ = 40,                       /* '+'  */
-  YYSYMBOL_41_ = 41,                       /* '-'  */
-  YYSYMBOL_42_ = 42,                       /* '*'  */
-  YYSYMBOL_43_ = 43,                       /* '/'  */
-  YYSYMBOL_44_ = 44,                       /* '%'  */
-  YYSYMBOL_UMINUS = 45,                    /* UMINUS  */
-  YYSYMBOL_46_ = 46,                       /* '('  */
-  YYSYMBOL_47_ = 47,                       /* ')'  */
-  YYSYMBOL_48_ = 48,                       /* '$'  */
-  YYSYMBOL_49_ = 49,                       /* '@'  */
-  YYSYMBOL_50_ = 50,                       /* ','  */
-  YYSYMBOL_51_ = 51,                       /* '['  */
-  YYSYMBOL_52_ = 52,                       /* ']'  */
-  YYSYMBOL_53_ = 53,                       /* '{'  */
-  YYSYMBOL_54_ = 54,                       /* '}'  */
-  YYSYMBOL_55_ = 55,                       /* '.'  */
-  YYSYMBOL_56_ = 56,                       /* '?'  */
-  YYSYMBOL_YYACCEPT = 57,                  /* $accept  */
-  YYSYMBOL_result = 58,                    /* result  */
-  YYSYMBOL_expr_or_predicate = 59,         /* expr_or_predicate  */
-  YYSYMBOL_mode = 60,                      /* mode  */
-  YYSYMBOL_scalar_value = 61,              /* scalar_value  */
-  YYSYMBOL_comp_op = 62,                   /* comp_op  */
-  YYSYMBOL_delimited_predicate = 63,       /* delimited_predicate  */
-  YYSYMBOL_predicate = 64,                 /* predicate  */
-  YYSYMBOL_starts_with_initial = 65,       /* starts_with_initial  */
-  YYSYMBOL_path_primary = 66,              /* path_primary  */
-  YYSYMBOL_accessor_expr = 67,             /* accessor_expr  */
-  YYSYMBOL_expr = 68,                      /* expr  */
-  YYSYMBOL_index_elem = 69,                /* index_elem  */
-  YYSYMBOL_index_list = 70,                /* index_list  */
-  YYSYMBOL_array_accessor = 71,            /* array_accessor  */
-  YYSYMBOL_any_level = 72,                 /* any_level  */
-  YYSYMBOL_any_path = 73,                  /* any_path  */
-  YYSYMBOL_accessor_op = 74,               /* accessor_op  */
-  YYSYMBOL_datetime_template = 75,         /* datetime_template  */
-  YYSYMBOL_opt_datetime_template = 76,     /* opt_datetime_template  */
-  YYSYMBOL_key = 77,                       /* key  */
-  YYSYMBOL_key_name = 78,                  /* key_name  */
-  YYSYMBOL_method = 79                     /* method  */
+  YYSYMBOL_BIGINT_P = 40,                  /* BIGINT_P  */
+  YYSYMBOL_BOOLEAN_P = 41,                 /* BOOLEAN_P  */
+  YYSYMBOL_DATE_P = 42,                    /* DATE_P  */
+  YYSYMBOL_DECIMAL_P = 43,                 /* DECIMAL_P  */
+  YYSYMBOL_INTEGER_P = 44,                 /* INTEGER_P  */
+  YYSYMBOL_NUMBER_P = 45,                  /* NUMBER_P  */
+  YYSYMBOL_STRINGFUNC_P = 46,              /* STRINGFUNC_P  */
+  YYSYMBOL_TIME_P = 47,                    /* TIME_P  */
+  YYSYMBOL_TIME_TZ_P = 48,                 /* TIME_TZ_P  */
+  YYSYMBOL_TIMESTAMP_P = 49,               /* TIMESTAMP_P  */
+  YYSYMBOL_TIMESTAMP_TZ_P = 50,            /* TIMESTAMP_TZ_P  */
+  YYSYMBOL_51_ = 51,                       /* '+'  */
+  YYSYMBOL_52_ = 52,                       /* '-'  */
+  YYSYMBOL_53_ = 53,                       /* '*'  */
+  YYSYMBOL_54_ = 54,                       /* '/'  */
+  YYSYMBOL_55_ = 55,                       /* '%'  */
+  YYSYMBOL_UMINUS = 56,                    /* UMINUS  */
+  YYSYMBOL_57_ = 57,                       /* '('  */
+  YYSYMBOL_58_ = 58,                       /* ')'  */
+  YYSYMBOL_59_ = 59,                       /* '$'  */
+  YYSYMBOL_60_ = 60,                       /* '@'  */
+  YYSYMBOL_61_ = 61,                       /* ','  */
+  YYSYMBOL_62_ = 62,                       /* '['  */
+  YYSYMBOL_63_ = 63,                       /* ']'  */
+  YYSYMBOL_64_ = 64,                       /* '{'  */
+  YYSYMBOL_65_ = 65,                       /* '}'  */
+  YYSYMBOL_66_ = 66,                       /* '.'  */
+  YYSYMBOL_67_ = 67,                       /* '?'  */
+  YYSYMBOL_YYACCEPT = 68,                  /* $accept  */
+  YYSYMBOL_result = 69,                    /* result  */
+  YYSYMBOL_expr_or_predicate = 70,         /* expr_or_predicate  */
+  YYSYMBOL_mode = 71,                      /* mode  */
+  YYSYMBOL_scalar_value = 72,              /* scalar_value  */
+  YYSYMBOL_comp_op = 73,                   /* comp_op  */
+  YYSYMBOL_delimited_predicate = 74,       /* delimited_predicate  */
+  YYSYMBOL_predicate = 75,                 /* predicate  */
+  YYSYMBOL_starts_with_initial = 76,       /* starts_with_initial  */
+  YYSYMBOL_path_primary = 77,              /* path_primary  */
+  YYSYMBOL_accessor_expr = 78,             /* accessor_expr  */
+  YYSYMBOL_expr = 79,                      /* expr  */
+  YYSYMBOL_index_elem = 80,                /* index_elem  */
+  YYSYMBOL_index_list = 81,                /* index_list  */
+  YYSYMBOL_array_accessor = 82,            /* array_accessor  */
+  YYSYMBOL_any_level = 83,                 /* any_level  */
+  YYSYMBOL_any_path = 84,                  /* any_path  */
+  YYSYMBOL_accessor_op = 85,               /* accessor_op  */
+  YYSYMBOL_csv_elem = 86,                  /* csv_elem  */
+  YYSYMBOL_csv_list = 87,                  /* csv_list  */
+  YYSYMBOL_opt_csv_list = 88,              /* opt_csv_list  */
+  YYSYMBOL_datetime_precision = 89,        /* datetime_precision  */
+  YYSYMBOL_opt_datetime_precision = 90,    /* opt_datetime_precision  */
+  YYSYMBOL_datetime_template = 91,         /* datetime_template  */
+  YYSYMBOL_opt_datetime_template = 92,     /* opt_datetime_template  */
+  YYSYMBOL_key = 93,                       /* key  */
+  YYSYMBOL_key_name = 94,                  /* key_name  */
+  YYSYMBOL_method = 95                     /* method  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -566,16 +582,16 @@ union yyalloc
 #define YYLAST   239
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  57
+#define YYNTOKENS  68
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  23
+#define YYNNTS  28
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  104
+#define YYNRULES  136
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  143
+#define YYNSTATES  180
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   295
+#define YYMAXUTOK   306
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -592,16 +608,16 @@ static const yytype_int8 yytranslate[] =
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,    48,    44,     2,     2,
-      46,    47,    42,    40,    50,    41,    55,    43,     2,     2,
+       2,     2,     2,     2,     2,     2,    59,    55,     2,     2,
+      57,    58,    53,    51,    61,    52,    66,    54,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    56,    49,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,    51,     2,    52,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,    67,    60,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    53,     2,    54,     2,     2,     2,     2,
+       2,    62,     2,    63,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,    64,     2,    65,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -618,24 +634,28 @@ static const yytype_int8 yytranslate[] =
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    45
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46,    47,    48,    49,    50,    56
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   117,   117,   123,   127,   128,   132,   133,   134,   138,
-     139,   140,   141,   142,   143,   144,   148,   149,   150,   151,
-     152,   153,   157,   158,   162,   163,   164,   165,   166,   167,
-     169,   171,   178,   188,   189,   193,   194,   195,   196,   200,
-     201,   202,   203,   207,   208,   209,   210,   211,   212,   213,
-     214,   215,   219,   220,   224,   225,   229,   230,   234,   235,
-     239,   240,   241,   246,   247,   248,   249,   250,   251,   253,
-     257,   261,   262,   266,   270,   271,   272,   273,   274,   275,
-     276,   277,   278,   279,   280,   281,   282,   283,   284,   285,
-     286,   287,   288,   289,   290,   291,   292,   293,   297,   298,
-     299,   300,   301,   302,   303
+       0,   120,   120,   126,   130,   131,   135,   136,   137,   141,
+     142,   143,   144,   145,   146,   147,   151,   152,   153,   154,
+     155,   156,   160,   161,   165,   166,   167,   168,   169,   170,
+     172,   174,   181,   191,   192,   196,   197,   198,   199,   203,
+     204,   205,   206,   210,   211,   212,   213,   214,   215,   216,
+     217,   218,   222,   223,   227,   228,   232,   233,   237,   238,
+     242,   243,   244,   249,   250,   251,   252,   253,   254,   255,
+     269,   271,   273,   275,   277,   282,   284,   286,   291,   292,
+     296,   297,   301,   305,   306,   310,   314,   315,   319,   323,
+     324,   325,   326,   327,   328,   329,   330,   331,   332,   333,
+     334,   335,   336,   337,   338,   339,   340,   341,   342,   343,
+     344,   345,   346,   347,   348,   349,   350,   351,   352,   353,
+     354,   355,   356,   357,   361,   362,   363,   364,   365,   366,
+     367,   368,   369,   370,   371,   372,   373
 };
 #endif
 
@@ -657,15 +677,18 @@ static const char *const yytname[] =
   "LESS_P", "LESSEQUAL_P", "EQUAL_P", "NOTEQUAL_P", "GREATEREQUAL_P",
   "GREATER_P", "ANY_P", "STRICT_P", "LAX_P", "LAST_P", "STARTS_P",
   "WITH_P", "LIKE_REGEX_P", "FLAG_P", "ABS_P", "SIZE_P", "TYPE_P",
-  "FLOOR_P", "DOUBLE_P", "CEILING_P", "KEYVALUE_P", "DATETIME_P", "'+'",
-  "'-'", "'*'", "'/'", "'%'", "UMINUS", "'('", "')'", "'$'", "'@'", "','",
-  "'['", "']'", "'{'", "'}'", "'.'", "'?'", "$accept", "result",
+  "FLOOR_P", "DOUBLE_P", "CEILING_P", "KEYVALUE_P", "DATETIME_P",
+  "BIGINT_P", "BOOLEAN_P", "DATE_P", "DECIMAL_P", "INTEGER_P", "NUMBER_P",
+  "STRINGFUNC_P", "TIME_P", "TIME_TZ_P", "TIMESTAMP_P", "TIMESTAMP_TZ_P",
+  "'+'", "'-'", "'*'", "'/'", "'%'", "UMINUS", "'('", "')'", "'$'", "'@'",
+  "','", "'['", "']'", "'{'", "'}'", "'.'", "'?'", "$accept", "result",
   "expr_or_predicate", "mode", "scalar_value", "comp_op",
   "delimited_predicate", "predicate", "starts_with_initial",
   "path_primary", "accessor_expr", "expr", "index_elem", "index_list",
-  "array_accessor", "any_level", "any_path", "accessor_op",
-  "datetime_template", "opt_datetime_template", "key", "key_name",
-  "method", YY_NULLPTR
+  "array_accessor", "any_level", "any_path", "accessor_op", "csv_elem",
+  "csv_list", "opt_csv_list", "datetime_precision",
+  "opt_datetime_precision", "datetime_template", "opt_datetime_template",
+  "key", "key_name", "method", YY_NULLPTR
 };
 
 static const char *
@@ -675,12 +698,12 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-44)
+#define YYPACT_NINF (-47)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-105)
+#define YYTABLE_NINF (-137)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -689,21 +712,24 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-       7,   -44,   -44,    18,    51,   -44,   -44,   -44,   -44,   -43,
-     -44,   -44,   -44,   -44,    -3,   -44,   114,   114,    51,   -44,
-     -44,   -44,   -44,   -44,    10,   -44,   -35,   195,   114,    51,
-     -44,    51,   -44,   -44,    14,   165,    51,    51,    68,   140,
-      -9,   -44,   -44,   -44,   -44,   -44,   -44,   -44,   -44,    37,
-      60,   114,   114,   114,   114,   114,   114,    46,    20,   195,
-      30,     3,   -35,    59,   -44,    24,    -2,   -44,   -41,   -44,
-     -44,   -44,   -44,   -44,   -44,   -44,   -44,   -44,    31,   -44,
-     -44,   -44,   -44,   -44,   -44,   -44,    48,    50,    52,    61,
-      67,    69,    78,    83,   -44,   -44,   -44,   -44,    84,    51,
-      17,   100,    79,    79,   -44,   -44,   -44,    62,   -44,   -44,
-     -35,    75,   -44,   -44,   -44,   114,   114,   -44,    -8,   121,
-      86,    54,   -44,   -44,   -44,   123,   -44,    62,   -44,   -44,
-     -44,    -1,   -44,   -44,    88,   -44,   -44,   -44,    -8,   -44,
-     -44,    82,   -44
+      64,   -47,   -47,    11,    26,   -47,   -47,   -47,   -47,   -37,
+     -47,   -47,   -47,   -47,    -3,   -47,    88,    88,    26,   -47,
+     -47,   -47,   -47,   -47,   109,   -47,    42,   176,    88,    26,
+     -47,    26,   -47,   -47,    29,   163,    26,    26,    54,   125,
+     -31,   -47,   -47,   -47,   -47,   -47,   -47,   -47,   -47,     0,
+      22,    88,    88,    88,    88,    88,    88,   181,    40,   176,
+      59,    -5,    42,    20,   -47,    13,    18,   -47,   -45,   -47,
+     -47,   -47,   -47,   -47,   -47,   -47,   -47,   -47,    15,   -47,
+     -47,   -47,   -47,   -47,   -47,   -47,    23,    25,    27,    31,
+      34,    38,    46,    53,    55,    69,    70,    84,    85,    86,
+      87,    89,   119,   120,   130,   -47,   -47,   -47,   -47,   131,
+      26,    14,    66,   -46,   -46,   -47,   -47,   -47,   156,   -47,
+     -47,    42,   108,   -47,   -47,   -47,    88,    88,   -47,    -8,
+     110,   -10,   166,   166,   166,   166,   132,   122,   -47,   -47,
+     -47,   178,   -47,   156,   -47,   -47,   -47,    -2,   -47,   -47,
+     134,   -47,   187,   188,   -47,   141,   145,   -47,   -47,   147,
+     154,   155,   161,   -47,   -47,   -47,    -8,   -47,   -47,   -47,
+     -47,   -10,   -47,   -47,   -47,   -47,   -47,   157,   -47,   -47
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -717,31 +743,34 @@ static const yytype_int8 yydefact[] =
       28,     0,    45,    46,     0,     0,     0,     0,     0,     0,
        0,    65,    42,    18,    20,    16,    17,    21,    19,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    22,    44,    27,    26,     0,    52,    54,     0,    76,
-      77,    78,    79,    80,    81,    82,    74,    75,    60,    83,
-      84,    93,    94,    95,    96,    97,    85,    86,    87,    88,
-      89,    90,    92,    91,    64,    66,    63,    73,     0,     0,
-       0,    31,    47,    48,    49,    50,    51,    25,    23,    22,
-       0,     0,    41,    40,    56,     0,     0,    57,     0,    72,
-       0,     0,    33,    34,    30,     0,    29,    53,    55,    58,
-      59,     0,    70,    71,     0,    67,    69,    32,     0,    61,
-      68,     0,    62
+       0,    22,    44,    27,    26,     0,    52,    54,     0,    91,
+      92,    93,    94,    95,    96,    97,    89,    90,    60,    98,
+      99,   108,   109,   110,   111,   112,   100,   101,   102,   103,
+     104,   105,   107,   106,   113,   114,   115,   116,   117,   118,
+     119,   120,   121,   122,   123,    64,    66,    63,    88,     0,
+       0,     0,    31,    47,    48,    49,    50,    51,    25,    23,
+      22,     0,     0,    41,    40,    56,     0,     0,    57,     0,
+      87,    81,    84,    84,    84,    84,     0,     0,    33,    34,
+      30,     0,    29,    53,    55,    58,    59,     0,    85,    86,
+       0,    75,     0,     0,    78,    80,     0,    82,    83,     0,
+       0,     0,     0,    67,    68,    32,     0,    61,    70,    76,
+      77,     0,    69,    71,    72,    73,    74,     0,    79,    62
 };
 
 /* YYPGOTO[NTERM-NUM].  */
-static const yytype_int8 yypgoto[] =
+static const yytype_int16 yypgoto[] =
 {
-     -44,   -44,   -44,   -44,   -44,   -44,   124,   -14,   -44,   -44,
-     -44,    -4,    21,   -44,   -44,     1,   -44,   -18,   -44,   -44,
-     -44,   -44,   -44
+     -47,   -47,   -47,   -47,   -47,   -47,   206,   -14,   -47,   -47,
+     -47,    -4,    96,   -47,   -47,    58,   -47,   -16,    67,   -47,
+     -47,   -47,   -15,   -47,   -47,   -47,   -47,   -47
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_uint8 yydefgoto[] =
 {
-       0,     3,    21,     4,    22,    56,    23,    24,   124,    25,
-      26,    59,    67,    68,    41,   131,    95,   112,   133,   134,
-      96,    97,    98
+       0,     3,    21,     4,    22,    56,    23,    24,   140,    25,
+      26,    59,    67,    68,    41,   147,   106,   123,   154,   155,
+     156,   158,   159,   149,   150,   107,   108,   109
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -749,95 +778,101 @@ static const yytype_uint8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-      27,   115,   138,    28,    34,   129,     9,    -3,    42,   116,
-     111,   117,    32,    33,    35,    58,    38,    60,     5,   130,
-      39,    40,    63,    64,    57,    36,    37,    35,   122,    36,
-      37,   123,     1,     2,    66,    36,    37,    99,    51,    52,
-      53,    54,    55,    29,   113,    36,    37,   102,   103,   104,
-     105,   106,   107,   139,    38,     6,     7,     8,    39,    40,
-       9,    61,    10,    11,    12,    13,   100,   109,    14,    36,
-      37,   101,     6,     7,     8,    37,   114,   110,    15,    10,
-      11,    12,    13,   126,   118,   121,    51,    52,    53,    54,
-      55,    16,    17,   108,   -98,    15,   -99,    18,  -100,    19,
-      20,   136,    51,    52,    53,    54,    55,  -101,    16,    17,
-      65,   127,    66,  -102,    31,  -103,    19,    20,     6,     7,
-       8,    53,    54,    55,  -104,    10,    11,    12,    13,   119,
-     120,   125,   132,   135,   137,   140,   142,   128,    30,   141,
-       0,    15,     0,    69,    70,    71,    72,    73,    74,    75,
-      76,    77,     0,     0,    16,    17,     0,     0,     0,     0,
-      31,     0,    19,    20,    78,    79,    80,    81,    82,    83,
-      84,    85,    86,    87,    88,    89,    90,    91,    92,    93,
-       0,     0,    94,    43,    44,    45,    46,    47,    48,     0,
-       0,     0,     0,    49,     0,    50,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    51,    52,    53,    54,    55,
-       0,     0,    62,    43,    44,    45,    46,    47,    48,     0,
-       0,     0,     0,    49,     0,    50,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    51,    52,    53,    54,    55
+      27,   166,   122,   151,    34,   145,     9,    53,    54,    55,
+      42,     5,    32,    33,    35,    58,   127,    60,   128,   146,
+      28,   126,    63,    64,    57,   138,   110,    35,   139,   111,
+       6,     7,     8,   112,    66,     9,    37,    10,    11,    12,
+      13,   152,   153,    14,    36,    37,   124,   113,   114,   115,
+     116,   117,   118,    15,    29,    36,    37,    38,     6,     7,
+       8,    39,    40,   167,    -3,    10,    11,    12,    13,    51,
+      52,    53,    54,    55,    36,    37,   125,    16,    17,   129,
+    -124,    15,  -125,    18,  -126,    19,    20,    61,  -127,     1,
+       2,  -128,     6,     7,     8,  -129,   137,   141,   120,    10,
+      11,    12,    13,  -130,    38,    16,    17,    65,    39,    40,
+     130,    31,  -131,    19,    20,    15,   142,   121,   160,   161,
+     162,   148,   143,    66,    36,    37,  -132,  -133,    69,    70,
+      71,    72,    73,    74,    75,    76,    77,    36,    37,    16,
+      17,   131,  -134,  -135,  -136,    31,   132,    19,    20,    78,
+      79,    80,    81,    82,    83,    84,    85,    86,    87,    88,
+      89,    90,    91,    92,    93,    94,    95,    96,    97,    98,
+      99,   100,   101,   102,   103,   104,   133,   134,   105,   157,
+     164,    43,    44,    45,    46,    47,    48,   135,   136,   165,
+     163,    49,   168,    50,    43,    44,    45,    46,    47,    48,
+     169,   170,   171,   172,    49,   173,    50,    51,    52,    53,
+      54,    55,   174,   175,    51,    52,    53,    54,    55,   176,
+      30,    62,   179,   144,   177,     0,     0,    51,    52,    53,
+      54,    55,    51,    52,    53,    54,    55,     0,   178,   119
 };
 
 static const yytype_int16 yycheck[] =
 {
-       4,     3,     3,    46,    18,    13,     9,     0,    26,    50,
-       7,    52,    16,    17,    18,    29,    51,    31,     0,    27,
-      55,    56,    36,    37,    28,    15,    16,    31,    11,    15,
-      16,    14,    25,    26,    38,    15,    16,    46,    40,    41,
-      42,    43,    44,    46,    62,    15,    16,    51,    52,    53,
-      54,    55,    56,    54,    51,     4,     5,     6,    55,    56,
-       9,    47,    11,    12,    13,    14,    29,    47,    17,    15,
-      16,    11,     4,     5,     6,    16,    52,    47,    27,    11,
-      12,    13,    14,     8,    53,    99,    40,    41,    42,    43,
-      44,    40,    41,    47,    46,    27,    46,    46,    46,    48,
-      49,    47,    40,    41,    42,    43,    44,    46,    40,    41,
-      42,   115,   116,    46,    46,    46,    48,    49,     4,     5,
-       6,    42,    43,    44,    46,    11,    12,    13,    14,    46,
-      46,    31,    11,    47,    11,    47,    54,   116,    14,   138,
-      -1,    27,    -1,     3,     4,     5,     6,     7,     8,     9,
-      10,    11,    -1,    -1,    40,    41,    -1,    -1,    -1,    -1,
-      46,    -1,    48,    49,    24,    25,    26,    27,    28,    29,
-      30,    31,    32,    33,    34,    35,    36,    37,    38,    39,
-      -1,    -1,    42,    18,    19,    20,    21,    22,    23,    -1,
-      -1,    -1,    -1,    28,    -1,    30,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    40,    41,    42,    43,    44,
-      -1,    -1,    47,    18,    19,    20,    21,    22,    23,    -1,
-      -1,    -1,    -1,    28,    -1,    30,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    40,    41,    42,    43,    44
+       4,     3,     7,    13,    18,    13,     9,    53,    54,    55,
+      26,     0,    16,    17,    18,    29,    61,    31,    63,    27,
+      57,     3,    36,    37,    28,    11,    57,    31,    14,    29,
+       4,     5,     6,    11,    38,     9,    16,    11,    12,    13,
+      14,    51,    52,    17,    15,    16,    62,    51,    52,    53,
+      54,    55,    56,    27,    57,    15,    16,    62,     4,     5,
+       6,    66,    67,    65,     0,    11,    12,    13,    14,    51,
+      52,    53,    54,    55,    15,    16,    63,    51,    52,    64,
+      57,    27,    57,    57,    57,    59,    60,    58,    57,    25,
+      26,    57,     4,     5,     6,    57,   110,    31,    58,    11,
+      12,    13,    14,    57,    62,    51,    52,    53,    66,    67,
+      57,    57,    57,    59,    60,    27,     8,    58,   133,   134,
+     135,    11,   126,   127,    15,    16,    57,    57,     3,     4,
+       5,     6,     7,     8,     9,    10,    11,    15,    16,    51,
+      52,    57,    57,    57,    57,    57,    57,    59,    60,    24,
+      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46,    47,    48,    49,    50,    57,    57,    53,    13,
+      58,    18,    19,    20,    21,    22,    23,    57,    57,    11,
+      58,    28,    58,    30,    18,    19,    20,    21,    22,    23,
+      13,    13,    61,    58,    28,    58,    30,    51,    52,    53,
+      54,    55,    58,    58,    51,    52,    53,    54,    55,    58,
+      14,    58,    65,   127,   166,    -1,    -1,    51,    52,    53,
+      54,    55,    51,    52,    53,    54,    55,    -1,   171,    58
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    25,    26,    58,    60,     0,     4,     5,     6,     9,
-      11,    12,    13,    14,    17,    27,    40,    41,    46,    48,
-      49,    59,    61,    63,    64,    66,    67,    68,    46,    46,
-      63,    46,    68,    68,    64,    68,    15,    16,    51,    55,
-      56,    71,    74,    18,    19,    20,    21,    22,    23,    28,
-      30,    40,    41,    42,    43,    44,    62,    68,    64,    68,
-      64,    47,    47,    64,    64,    42,    68,    69,    70,     3,
+       0,    25,    26,    69,    71,     0,     4,     5,     6,     9,
+      11,    12,    13,    14,    17,    27,    51,    52,    57,    59,
+      60,    70,    72,    74,    75,    77,    78,    79,    57,    57,
+      74,    57,    79,    79,    75,    79,    15,    16,    62,    66,
+      67,    82,    85,    18,    19,    20,    21,    22,    23,    28,
+      30,    51,    52,    53,    54,    55,    73,    79,    75,    79,
+      75,    58,    58,    75,    75,    53,    79,    80,    81,     3,
        4,     5,     6,     7,     8,     9,    10,    11,    24,    25,
       26,    27,    28,    29,    30,    31,    32,    33,    34,    35,
-      36,    37,    38,    39,    42,    73,    77,    78,    79,    46,
-      29,    11,    68,    68,    68,    68,    68,    68,    47,    47,
-      47,     7,    74,    74,    52,     3,    50,    52,    53,    46,
-      46,    64,    11,    14,    65,    31,     8,    68,    69,    13,
-      27,    72,    11,    75,    76,    47,    47,    11,     3,    54,
-      47,    72,    54
+      36,    37,    38,    39,    40,    41,    42,    43,    44,    45,
+      46,    47,    48,    49,    50,    53,    84,    93,    94,    95,
+      57,    29,    11,    79,    79,    79,    79,    79,    79,    58,
+      58,    58,     7,    85,    85,    63,     3,    61,    63,    64,
+      57,    57,    57,    57,    57,    57,    57,    75,    11,    14,
+      76,    31,     8,    79,    80,    13,    27,    83,    11,    91,
+      92,    13,    51,    52,    86,    87,    88,    13,    89,    90,
+      90,    90,    90,    58,    58,    11,     3,    65,    58,    13,
+      13,    61,    58,    58,    58,    58,    58,    83,    86,    65
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    57,    58,    58,    59,    59,    60,    60,    60,    61,
-      61,    61,    61,    61,    61,    61,    62,    62,    62,    62,
-      62,    62,    63,    63,    64,    64,    64,    64,    64,    64,
-      64,    64,    64,    65,    65,    66,    66,    66,    66,    67,
-      67,    67,    67,    68,    68,    68,    68,    68,    68,    68,
-      68,    68,    69,    69,    70,    70,    71,    71,    72,    72,
-      73,    73,    73,    74,    74,    74,    74,    74,    74,    74,
-      75,    76,    76,    77,    78,    78,    78,    78,    78,    78,
-      78,    78,    78,    78,    78,    78,    78,    78,    78,    78,
-      78,    78,    78,    78,    78,    78,    78,    78,    79,    79,
-      79,    79,    79,    79,    79
+       0,    68,    69,    69,    70,    70,    71,    71,    71,    72,
+      72,    72,    72,    72,    72,    72,    73,    73,    73,    73,
+      73,    73,    74,    74,    75,    75,    75,    75,    75,    75,
+      75,    75,    75,    76,    76,    77,    77,    77,    77,    78,
+      78,    78,    78,    79,    79,    79,    79,    79,    79,    79,
+      79,    79,    80,    80,    81,    81,    82,    82,    83,    83,
+      84,    84,    84,    85,    85,    85,    85,    85,    85,    85,
+      85,    85,    85,    85,    85,    86,    86,    86,    87,    87,
+      88,    88,    89,    90,    90,    91,    92,    92,    93,    94,
+      94,    94,    94,    94,    94,    94,    94,    94,    94,    94,
+      94,    94,    94,    94,    94,    94,    94,    94,    94,    94,
+      94,    94,    94,    94,    94,    94,    94,    94,    94,    94,
+      94,    94,    94,    94,    95,    95,    95,    95,    95,    95,
+      95,    95,    95,    95,    95,    95,    95
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
@@ -849,11 +884,14 @@ static const yytype_int8 yyr2[] =
        4,     3,     5,     1,     1,     1,     1,     1,     1,     1,
        4,     4,     2,     1,     3,     2,     2,     3,     3,     3,
        3,     3,     1,     3,     1,     3,     3,     3,     1,     1,
-       1,     4,     6,     2,     2,     1,     2,     4,     5,     4,
-       1,     1,     0,     1,     1,     1,     1,     1,     1,     1,
+       1,     4,     6,     2,     2,     1,     2,     4,     4,     5,
+       5,     5,     5,     5,     5,     1,     2,     2,     1,     3,
+       1,     0,     1,     1,     0,     1,     1,     0,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     1
+       1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+       1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+       1,     1,     1,     1,     1,     1,     1
 };
 
 
@@ -1327,496 +1365,634 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* result: mode expr_or_predicate  */
-#line 117 "jsonpath_gram.y"
+#line 120 "jsonpath_gram.y"
                                                 {
 										*result = palloc(sizeof(JsonPathParseResult));
 										(*result)->expr = (yyvsp[0].value);
 										(*result)->lax = (yyvsp[-1].boolean);
 										(void) yynerrs;
 									}
-#line 1338 "jsonpath_gram.c"
+#line 1376 "jsonpath_gram.c"
     break;
 
   case 3: /* result: %empty  */
-#line 123 "jsonpath_gram.y"
+#line 126 "jsonpath_gram.y"
                                                         { *result = NULL; }
-#line 1344 "jsonpath_gram.c"
+#line 1382 "jsonpath_gram.c"
     break;
 
   case 4: /* expr_or_predicate: expr  */
-#line 127 "jsonpath_gram.y"
+#line 130 "jsonpath_gram.y"
                                                                 { (yyval.value) = (yyvsp[0].value); }
-#line 1350 "jsonpath_gram.c"
+#line 1388 "jsonpath_gram.c"
     break;
 
   case 5: /* expr_or_predicate: predicate  */
-#line 128 "jsonpath_gram.y"
+#line 131 "jsonpath_gram.y"
                                                                 { (yyval.value) = (yyvsp[0].value); }
-#line 1356 "jsonpath_gram.c"
+#line 1394 "jsonpath_gram.c"
     break;
 
   case 6: /* mode: STRICT_P  */
-#line 132 "jsonpath_gram.y"
+#line 135 "jsonpath_gram.y"
                                                                 { (yyval.boolean) = false; }
-#line 1362 "jsonpath_gram.c"
+#line 1400 "jsonpath_gram.c"
     break;
 
   case 7: /* mode: LAX_P  */
-#line 133 "jsonpath_gram.y"
+#line 136 "jsonpath_gram.y"
                                                                 { (yyval.boolean) = true; }
-#line 1368 "jsonpath_gram.c"
+#line 1406 "jsonpath_gram.c"
     break;
 
   case 8: /* mode: %empty  */
-#line 134 "jsonpath_gram.y"
+#line 137 "jsonpath_gram.y"
                                                         { (yyval.boolean) = true; }
-#line 1374 "jsonpath_gram.c"
+#line 1412 "jsonpath_gram.c"
     break;
 
   case 9: /* scalar_value: STRING_P  */
-#line 138 "jsonpath_gram.y"
+#line 141 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemString(&(yyvsp[0].str)); }
-#line 1380 "jsonpath_gram.c"
+#line 1418 "jsonpath_gram.c"
     break;
 
   case 10: /* scalar_value: NULL_P  */
-#line 139 "jsonpath_gram.y"
+#line 142 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemString(NULL); }
-#line 1386 "jsonpath_gram.c"
+#line 1424 "jsonpath_gram.c"
     break;
 
   case 11: /* scalar_value: TRUE_P  */
-#line 140 "jsonpath_gram.y"
+#line 143 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemBool(true); }
-#line 1392 "jsonpath_gram.c"
+#line 1430 "jsonpath_gram.c"
     break;
 
   case 12: /* scalar_value: FALSE_P  */
-#line 141 "jsonpath_gram.y"
+#line 144 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemBool(false); }
-#line 1398 "jsonpath_gram.c"
+#line 1436 "jsonpath_gram.c"
     break;
 
   case 13: /* scalar_value: NUMERIC_P  */
-#line 142 "jsonpath_gram.y"
+#line 145 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemNumeric(&(yyvsp[0].str)); }
-#line 1404 "jsonpath_gram.c"
+#line 1442 "jsonpath_gram.c"
     break;
 
   case 14: /* scalar_value: INT_P  */
-#line 143 "jsonpath_gram.y"
+#line 146 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemNumeric(&(yyvsp[0].str)); }
-#line 1410 "jsonpath_gram.c"
+#line 1448 "jsonpath_gram.c"
     break;
 
   case 15: /* scalar_value: VARIABLE_P  */
-#line 144 "jsonpath_gram.y"
+#line 147 "jsonpath_gram.y"
                                                         { (yyval.value) = makeItemVariable(&(yyvsp[0].str)); }
-#line 1416 "jsonpath_gram.c"
+#line 1454 "jsonpath_gram.c"
     break;
 
   case 16: /* comp_op: EQUAL_P  */
-#line 148 "jsonpath_gram.y"
+#line 151 "jsonpath_gram.y"
                                                                 { (yyval.optype) = jpiEqual; }
-#line 1422 "jsonpath_gram.c"
+#line 1460 "jsonpath_gram.c"
     break;
 
   case 17: /* comp_op: NOTEQUAL_P  */
-#line 149 "jsonpath_gram.y"
+#line 152 "jsonpath_gram.y"
                                                         { (yyval.optype) = jpiNotEqual; }
-#line 1428 "jsonpath_gram.c"
+#line 1466 "jsonpath_gram.c"
     break;
 
   case 18: /* comp_op: LESS_P  */
-#line 150 "jsonpath_gram.y"
+#line 153 "jsonpath_gram.y"
                                                                 { (yyval.optype) = jpiLess; }
-#line 1434 "jsonpath_gram.c"
+#line 1472 "jsonpath_gram.c"
     break;
 
   case 19: /* comp_op: GREATER_P  */
-#line 151 "jsonpath_gram.y"
+#line 154 "jsonpath_gram.y"
                                                                 { (yyval.optype) = jpiGreater; }
-#line 1440 "jsonpath_gram.c"
+#line 1478 "jsonpath_gram.c"
     break;
 
   case 20: /* comp_op: LESSEQUAL_P  */
-#line 152 "jsonpath_gram.y"
+#line 155 "jsonpath_gram.y"
                                                         { (yyval.optype) = jpiLessOrEqual; }
-#line 1446 "jsonpath_gram.c"
+#line 1484 "jsonpath_gram.c"
     break;
 
   case 21: /* comp_op: GREATEREQUAL_P  */
-#line 153 "jsonpath_gram.y"
+#line 156 "jsonpath_gram.y"
                                                         { (yyval.optype) = jpiGreaterOrEqual; }
-#line 1452 "jsonpath_gram.c"
+#line 1490 "jsonpath_gram.c"
     break;
 
   case 22: /* delimited_predicate: '(' predicate ')'  */
-#line 157 "jsonpath_gram.y"
+#line 160 "jsonpath_gram.y"
                                                         { (yyval.value) = (yyvsp[-1].value); }
-#line 1458 "jsonpath_gram.c"
+#line 1496 "jsonpath_gram.c"
     break;
 
   case 23: /* delimited_predicate: EXISTS_P '(' expr ')'  */
-#line 158 "jsonpath_gram.y"
+#line 161 "jsonpath_gram.y"
                                                 { (yyval.value) = makeItemUnary(jpiExists, (yyvsp[-1].value)); }
-#line 1464 "jsonpath_gram.c"
+#line 1502 "jsonpath_gram.c"
     break;
 
   case 24: /* predicate: delimited_predicate  */
-#line 162 "jsonpath_gram.y"
+#line 165 "jsonpath_gram.y"
                                                         { (yyval.value) = (yyvsp[0].value); }
-#line 1470 "jsonpath_gram.c"
+#line 1508 "jsonpath_gram.c"
     break;
 
   case 25: /* predicate: expr comp_op expr  */
-#line 163 "jsonpath_gram.y"
+#line 166 "jsonpath_gram.y"
                                                         { (yyval.value) = makeItemBinary((yyvsp[-1].optype), (yyvsp[-2].value), (yyvsp[0].value)); }
-#line 1476 "jsonpath_gram.c"
+#line 1514 "jsonpath_gram.c"
     break;
 
   case 26: /* predicate: predicate AND_P predicate  */
-#line 164 "jsonpath_gram.y"
+#line 167 "jsonpath_gram.y"
                                                 { (yyval.value) = makeItemBinary(jpiAnd, (yyvsp[-2].value), (yyvsp[0].value)); }
-#line 1482 "jsonpath_gram.c"
+#line 1520 "jsonpath_gram.c"
     break;
 
   case 27: /* predicate: predicate OR_P predicate  */
-#line 165 "jsonpath_gram.y"
+#line 168 "jsonpath_gram.y"
                                                 { (yyval.value) = makeItemBinary(jpiOr, (yyvsp[-2].value), (yyvsp[0].value)); }
-#line 1488 "jsonpath_gram.c"
+#line 1526 "jsonpath_gram.c"
     break;
 
   case 28: /* predicate: NOT_P delimited_predicate  */
-#line 166 "jsonpath_gram.y"
+#line 169 "jsonpath_gram.y"
                                                 { (yyval.value) = makeItemUnary(jpiNot, (yyvsp[0].value)); }
-#line 1494 "jsonpath_gram.c"
+#line 1532 "jsonpath_gram.c"
     break;
 
   case 29: /* predicate: '(' predicate ')' IS_P UNKNOWN_P  */
-#line 168 "jsonpath_gram.y"
+#line 171 "jsonpath_gram.y"
                                                                         { (yyval.value) = makeItemUnary(jpiIsUnknown, (yyvsp[-3].value)); }
-#line 1500 "jsonpath_gram.c"
+#line 1538 "jsonpath_gram.c"
     break;
 
   case 30: /* predicate: expr STARTS_P WITH_P starts_with_initial  */
-#line 170 "jsonpath_gram.y"
+#line 173 "jsonpath_gram.y"
                                                                         { (yyval.value) = makeItemBinary(jpiStartsWith, (yyvsp[-3].value), (yyvsp[0].value)); }
-#line 1506 "jsonpath_gram.c"
+#line 1544 "jsonpath_gram.c"
     break;
 
   case 31: /* predicate: expr LIKE_REGEX_P STRING_P  */
-#line 172 "jsonpath_gram.y"
+#line 175 "jsonpath_gram.y"
         {
 		JsonPathParseItem *jppitem;
 		if (! makeItemLikeRegex((yyvsp[-2].value), &(yyvsp[0].str), NULL, &jppitem, escontext))
 			YYABORT;
 		(yyval.value) = jppitem;
 	}
-#line 1517 "jsonpath_gram.c"
+#line 1555 "jsonpath_gram.c"
     break;
 
   case 32: /* predicate: expr LIKE_REGEX_P STRING_P FLAG_P STRING_P  */
-#line 179 "jsonpath_gram.y"
+#line 182 "jsonpath_gram.y"
         {
 		JsonPathParseItem *jppitem;
 		if (! makeItemLikeRegex((yyvsp[-4].value), &(yyvsp[-2].str), &(yyvsp[0].str), &jppitem, escontext))
 			YYABORT;
 		(yyval.value) = jppitem;
 	}
-#line 1528 "jsonpath_gram.c"
+#line 1566 "jsonpath_gram.c"
     break;
 
   case 33: /* starts_with_initial: STRING_P  */
-#line 188 "jsonpath_gram.y"
+#line 191 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemString(&(yyvsp[0].str)); }
-#line 1534 "jsonpath_gram.c"
+#line 1572 "jsonpath_gram.c"
     break;
 
   case 34: /* starts_with_initial: VARIABLE_P  */
-#line 189 "jsonpath_gram.y"
+#line 192 "jsonpath_gram.y"
                                                         { (yyval.value) = makeItemVariable(&(yyvsp[0].str)); }
-#line 1540 "jsonpath_gram.c"
+#line 1578 "jsonpath_gram.c"
     break;
 
   case 35: /* path_primary: scalar_value  */
-#line 193 "jsonpath_gram.y"
+#line 196 "jsonpath_gram.y"
                                                         { (yyval.value) = (yyvsp[0].value); }
-#line 1546 "jsonpath_gram.c"
+#line 1584 "jsonpath_gram.c"
     break;
 
   case 36: /* path_primary: '$'  */
-#line 194 "jsonpath_gram.y"
+#line 197 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemType(jpiRoot); }
-#line 1552 "jsonpath_gram.c"
+#line 1590 "jsonpath_gram.c"
     break;
 
   case 37: /* path_primary: '@'  */
-#line 195 "jsonpath_gram.y"
+#line 198 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemType(jpiCurrent); }
-#line 1558 "jsonpath_gram.c"
+#line 1596 "jsonpath_gram.c"
     break;
 
   case 38: /* path_primary: LAST_P  */
-#line 196 "jsonpath_gram.y"
+#line 199 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemType(jpiLast); }
-#line 1564 "jsonpath_gram.c"
+#line 1602 "jsonpath_gram.c"
     break;
 
   case 39: /* accessor_expr: path_primary  */
-#line 200 "jsonpath_gram.y"
+#line 203 "jsonpath_gram.y"
                                                         { (yyval.elems) = list_make1((yyvsp[0].value)); }
-#line 1570 "jsonpath_gram.c"
+#line 1608 "jsonpath_gram.c"
     break;
 
   case 40: /* accessor_expr: '(' expr ')' accessor_op  */
-#line 201 "jsonpath_gram.y"
+#line 204 "jsonpath_gram.y"
                                                 { (yyval.elems) = list_make2((yyvsp[-2].value), (yyvsp[0].value)); }
-#line 1576 "jsonpath_gram.c"
+#line 1614 "jsonpath_gram.c"
     break;
 
   case 41: /* accessor_expr: '(' predicate ')' accessor_op  */
-#line 202 "jsonpath_gram.y"
+#line 205 "jsonpath_gram.y"
                                         { (yyval.elems) = list_make2((yyvsp[-2].value), (yyvsp[0].value)); }
-#line 1582 "jsonpath_gram.c"
+#line 1620 "jsonpath_gram.c"
     break;
 
   case 42: /* accessor_expr: accessor_expr accessor_op  */
-#line 203 "jsonpath_gram.y"
+#line 206 "jsonpath_gram.y"
                                                 { (yyval.elems) = lappend((yyvsp[-1].elems), (yyvsp[0].value)); }
-#line 1588 "jsonpath_gram.c"
+#line 1626 "jsonpath_gram.c"
     break;
 
   case 43: /* expr: accessor_expr  */
-#line 207 "jsonpath_gram.y"
+#line 210 "jsonpath_gram.y"
                                                         { (yyval.value) = makeItemList((yyvsp[0].elems)); }
-#line 1594 "jsonpath_gram.c"
+#line 1632 "jsonpath_gram.c"
     break;
 
   case 44: /* expr: '(' expr ')'  */
-#line 208 "jsonpath_gram.y"
+#line 211 "jsonpath_gram.y"
                                                         { (yyval.value) = (yyvsp[-1].value); }
-#line 1600 "jsonpath_gram.c"
+#line 1638 "jsonpath_gram.c"
     break;
 
   case 45: /* expr: '+' expr  */
-#line 209 "jsonpath_gram.y"
+#line 212 "jsonpath_gram.y"
                                                 { (yyval.value) = makeItemUnary(jpiPlus, (yyvsp[0].value)); }
-#line 1606 "jsonpath_gram.c"
+#line 1644 "jsonpath_gram.c"
     break;
 
   case 46: /* expr: '-' expr  */
-#line 210 "jsonpath_gram.y"
+#line 213 "jsonpath_gram.y"
                                                 { (yyval.value) = makeItemUnary(jpiMinus, (yyvsp[0].value)); }
-#line 1612 "jsonpath_gram.c"
+#line 1650 "jsonpath_gram.c"
     break;
 
   case 47: /* expr: expr '+' expr  */
-#line 211 "jsonpath_gram.y"
+#line 214 "jsonpath_gram.y"
                                                         { (yyval.value) = makeItemBinary(jpiAdd, (yyvsp[-2].value), (yyvsp[0].value)); }
-#line 1618 "jsonpath_gram.c"
+#line 1656 "jsonpath_gram.c"
     break;
 
   case 48: /* expr: expr '-' expr  */
-#line 212 "jsonpath_gram.y"
+#line 215 "jsonpath_gram.y"
                                                         { (yyval.value) = makeItemBinary(jpiSub, (yyvsp[-2].value), (yyvsp[0].value)); }
-#line 1624 "jsonpath_gram.c"
+#line 1662 "jsonpath_gram.c"
     break;
 
   case 49: /* expr: expr '*' expr  */
-#line 213 "jsonpath_gram.y"
+#line 216 "jsonpath_gram.y"
                                                         { (yyval.value) = makeItemBinary(jpiMul, (yyvsp[-2].value), (yyvsp[0].value)); }
-#line 1630 "jsonpath_gram.c"
+#line 1668 "jsonpath_gram.c"
     break;
 
   case 50: /* expr: expr '/' expr  */
-#line 214 "jsonpath_gram.y"
+#line 217 "jsonpath_gram.y"
                                                         { (yyval.value) = makeItemBinary(jpiDiv, (yyvsp[-2].value), (yyvsp[0].value)); }
-#line 1636 "jsonpath_gram.c"
+#line 1674 "jsonpath_gram.c"
     break;
 
   case 51: /* expr: expr '%' expr  */
-#line 215 "jsonpath_gram.y"
+#line 218 "jsonpath_gram.y"
                                                         { (yyval.value) = makeItemBinary(jpiMod, (yyvsp[-2].value), (yyvsp[0].value)); }
-#line 1642 "jsonpath_gram.c"
+#line 1680 "jsonpath_gram.c"
     break;
 
   case 52: /* index_elem: expr  */
-#line 219 "jsonpath_gram.y"
+#line 222 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemBinary(jpiSubscript, (yyvsp[0].value), NULL); }
-#line 1648 "jsonpath_gram.c"
+#line 1686 "jsonpath_gram.c"
     break;
 
   case 53: /* index_elem: expr TO_P expr  */
-#line 220 "jsonpath_gram.y"
+#line 223 "jsonpath_gram.y"
                                                         { (yyval.value) = makeItemBinary(jpiSubscript, (yyvsp[-2].value), (yyvsp[0].value)); }
-#line 1654 "jsonpath_gram.c"
+#line 1692 "jsonpath_gram.c"
     break;
 
   case 54: /* index_list: index_elem  */
-#line 224 "jsonpath_gram.y"
+#line 227 "jsonpath_gram.y"
                                                                 { (yyval.indexs) = list_make1((yyvsp[0].value)); }
-#line 1660 "jsonpath_gram.c"
+#line 1698 "jsonpath_gram.c"
     break;
 
   case 55: /* index_list: index_list ',' index_elem  */
-#line 225 "jsonpath_gram.y"
+#line 228 "jsonpath_gram.y"
                                                 { (yyval.indexs) = lappend((yyvsp[-2].indexs), (yyvsp[0].value)); }
-#line 1666 "jsonpath_gram.c"
+#line 1704 "jsonpath_gram.c"
     break;
 
   case 56: /* array_accessor: '[' '*' ']'  */
-#line 229 "jsonpath_gram.y"
+#line 232 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemType(jpiAnyArray); }
-#line 1672 "jsonpath_gram.c"
+#line 1710 "jsonpath_gram.c"
     break;
 
   case 57: /* array_accessor: '[' index_list ']'  */
-#line 230 "jsonpath_gram.y"
+#line 233 "jsonpath_gram.y"
                                                 { (yyval.value) = makeIndexArray((yyvsp[-1].indexs)); }
-#line 1678 "jsonpath_gram.c"
+#line 1716 "jsonpath_gram.c"
     break;
 
   case 58: /* any_level: INT_P  */
-#line 234 "jsonpath_gram.y"
+#line 237 "jsonpath_gram.y"
                                                                 { (yyval.integer) = pg_strtoint32((yyvsp[0].str).val); }
-#line 1684 "jsonpath_gram.c"
+#line 1722 "jsonpath_gram.c"
     break;
 
   case 59: /* any_level: LAST_P  */
-#line 235 "jsonpath_gram.y"
+#line 238 "jsonpath_gram.y"
                                                                 { (yyval.integer) = -1; }
-#line 1690 "jsonpath_gram.c"
+#line 1728 "jsonpath_gram.c"
     break;
 
   case 60: /* any_path: ANY_P  */
-#line 239 "jsonpath_gram.y"
+#line 242 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeAny(0, -1); }
-#line 1696 "jsonpath_gram.c"
+#line 1734 "jsonpath_gram.c"
     break;
 
   case 61: /* any_path: ANY_P '{' any_level '}'  */
-#line 240 "jsonpath_gram.y"
+#line 243 "jsonpath_gram.y"
                                                 { (yyval.value) = makeAny((yyvsp[-1].integer), (yyvsp[-1].integer)); }
-#line 1702 "jsonpath_gram.c"
+#line 1740 "jsonpath_gram.c"
     break;
 
   case 62: /* any_path: ANY_P '{' any_level TO_P any_level '}'  */
-#line 242 "jsonpath_gram.y"
+#line 245 "jsonpath_gram.y"
                                                                         { (yyval.value) = makeAny((yyvsp[-3].integer), (yyvsp[-1].integer)); }
-#line 1708 "jsonpath_gram.c"
+#line 1746 "jsonpath_gram.c"
     break;
 
   case 63: /* accessor_op: '.' key  */
-#line 246 "jsonpath_gram.y"
+#line 249 "jsonpath_gram.y"
                                                                 { (yyval.value) = (yyvsp[0].value); }
-#line 1714 "jsonpath_gram.c"
+#line 1752 "jsonpath_gram.c"
     break;
 
   case 64: /* accessor_op: '.' '*'  */
-#line 247 "jsonpath_gram.y"
+#line 250 "jsonpath_gram.y"
                                                                 { (yyval.value) = makeItemType(jpiAnyKey); }
-#line 1720 "jsonpath_gram.c"
+#line 1758 "jsonpath_gram.c"
     break;
 
   case 65: /* accessor_op: array_accessor  */
-#line 248 "jsonpath_gram.y"
+#line 251 "jsonpath_gram.y"
                                                         { (yyval.value) = (yyvsp[0].value); }
-#line 1726 "jsonpath_gram.c"
+#line 1764 "jsonpath_gram.c"
     break;
 
   case 66: /* accessor_op: '.' any_path  */
-#line 249 "jsonpath_gram.y"
+#line 252 "jsonpath_gram.y"
                                                         { (yyval.value) = (yyvsp[0].value); }
-#line 1732 "jsonpath_gram.c"
+#line 1770 "jsonpath_gram.c"
     break;
 
   case 67: /* accessor_op: '.' method '(' ')'  */
-#line 250 "jsonpath_gram.y"
-                                                { (yyval.value) = makeItemType((yyvsp[-2].optype)); }
-#line 1738 "jsonpath_gram.c"
-    break;
-
-  case 68: /* accessor_op: '.' DATETIME_P '(' opt_datetime_template ')'  */
-#line 252 "jsonpath_gram.y"
-                                                                        { (yyval.value) = makeItemUnary(jpiDatetime, (yyvsp[-1].value)); }
-#line 1744 "jsonpath_gram.c"
-    break;
-
-  case 69: /* accessor_op: '?' '(' predicate ')'  */
 #line 253 "jsonpath_gram.y"
+                                                { (yyval.value) = makeItemType((yyvsp[-2].optype)); }
+#line 1776 "jsonpath_gram.c"
+    break;
+
+  case 68: /* accessor_op: '?' '(' predicate ')'  */
+#line 254 "jsonpath_gram.y"
                                                 { (yyval.value) = makeItemUnary(jpiFilter, (yyvsp[-1].value)); }
-#line 1750 "jsonpath_gram.c"
+#line 1782 "jsonpath_gram.c"
     break;
 
-  case 70: /* datetime_template: STRING_P  */
-#line 257 "jsonpath_gram.y"
-                                                                { (yyval.value) = makeItemString(&(yyvsp[0].str)); }
-#line 1756 "jsonpath_gram.c"
+  case 69: /* accessor_op: '.' DECIMAL_P '(' opt_csv_list ')'  */
+#line 256 "jsonpath_gram.y"
+                {
+			if (list_length((yyvsp[-1].elems)) == 0)
+				(yyval.value) = makeItemBinary(jpiDecimal, NULL, NULL);
+			else if (list_length((yyvsp[-1].elems)) == 1)
+				(yyval.value) = makeItemBinary(jpiDecimal, linitial((yyvsp[-1].elems)), NULL);
+			else if (list_length((yyvsp[-1].elems)) == 2)
+				(yyval.value) = makeItemBinary(jpiDecimal, linitial((yyvsp[-1].elems)), lsecond((yyvsp[-1].elems)));
+			else
+				ereturn(escontext, false,
+						(errcode(ERRCODE_SYNTAX_ERROR),
+						 errmsg("invalid input syntax for type %s", "jsonpath"),
+						 errdetail(".decimal() can only have an optional precision[,scale].")));
+		}
+#line 1800 "jsonpath_gram.c"
     break;
 
-  case 71: /* opt_datetime_template: datetime_template  */
-#line 261 "jsonpath_gram.y"
-                                                        { (yyval.value) = (yyvsp[0].value); }
-#line 1762 "jsonpath_gram.c"
+  case 70: /* accessor_op: '.' DATETIME_P '(' opt_datetime_template ')'  */
+#line 270 "jsonpath_gram.y"
+                { (yyval.value) = makeItemUnary(jpiDatetime, (yyvsp[-1].value)); }
+#line 1806 "jsonpath_gram.c"
     break;
 
-  case 72: /* opt_datetime_template: %empty  */
-#line 262 "jsonpath_gram.y"
-                                                        { (yyval.value) = NULL; }
-#line 1768 "jsonpath_gram.c"
+  case 71: /* accessor_op: '.' TIME_P '(' opt_datetime_precision ')'  */
+#line 272 "jsonpath_gram.y"
+                { (yyval.value) = makeItemUnary(jpiTime, (yyvsp[-1].value)); }
+#line 1812 "jsonpath_gram.c"
     break;
 
-  case 73: /* key: key_name  */
-#line 266 "jsonpath_gram.y"
-                                                                { (yyval.value) = makeItemKey(&(yyvsp[0].str)); }
-#line 1774 "jsonpath_gram.c"
+  case 72: /* accessor_op: '.' TIME_TZ_P '(' opt_datetime_precision ')'  */
+#line 274 "jsonpath_gram.y"
+                { (yyval.value) = makeItemUnary(jpiTimeTz, (yyvsp[-1].value)); }
+#line 1818 "jsonpath_gram.c"
     break;
 
-  case 98: /* method: ABS_P  */
+  case 73: /* accessor_op: '.' TIMESTAMP_P '(' opt_datetime_precision ')'  */
+#line 276 "jsonpath_gram.y"
+                { (yyval.value) = makeItemUnary(jpiTimestamp, (yyvsp[-1].value)); }
+#line 1824 "jsonpath_gram.c"
+    break;
+
+  case 74: /* accessor_op: '.' TIMESTAMP_TZ_P '(' opt_datetime_precision ')'  */
+#line 278 "jsonpath_gram.y"
+                { (yyval.value) = makeItemUnary(jpiTimestampTz, (yyvsp[-1].value)); }
+#line 1830 "jsonpath_gram.c"
+    break;
+
+  case 75: /* csv_elem: INT_P  */
+#line 283 "jsonpath_gram.y"
+                { (yyval.value) = makeItemNumeric(&(yyvsp[0].str)); }
+#line 1836 "jsonpath_gram.c"
+    break;
+
+  case 76: /* csv_elem: '+' INT_P  */
+#line 285 "jsonpath_gram.y"
+                { (yyval.value) = makeItemUnary(jpiPlus, makeItemNumeric(&(yyvsp[0].str))); }
+#line 1842 "jsonpath_gram.c"
+    break;
+
+  case 77: /* csv_elem: '-' INT_P  */
+#line 287 "jsonpath_gram.y"
+                { (yyval.value) = makeItemUnary(jpiMinus, makeItemNumeric(&(yyvsp[0].str))); }
+#line 1848 "jsonpath_gram.c"
+    break;
+
+  case 78: /* csv_list: csv_elem  */
+#line 291 "jsonpath_gram.y"
+                                                                { (yyval.elems) = list_make1((yyvsp[0].value)); }
+#line 1854 "jsonpath_gram.c"
+    break;
+
+  case 79: /* csv_list: csv_list ',' csv_elem  */
+#line 292 "jsonpath_gram.y"
+                                                { (yyval.elems) = lappend((yyvsp[-2].elems), (yyvsp[0].value)); }
+#line 1860 "jsonpath_gram.c"
+    break;
+
+  case 80: /* opt_csv_list: csv_list  */
+#line 296 "jsonpath_gram.y"
+                                                                { (yyval.elems) = (yyvsp[0].elems); }
+#line 1866 "jsonpath_gram.c"
+    break;
+
+  case 81: /* opt_csv_list: %empty  */
 #line 297 "jsonpath_gram.y"
-                                                                { (yyval.optype) = jpiAbs; }
-#line 1780 "jsonpath_gram.c"
+                                                        { (yyval.elems) = NULL; }
+#line 1872 "jsonpath_gram.c"
     break;
 
-  case 99: /* method: SIZE_P  */
-#line 298 "jsonpath_gram.y"
-                                                                { (yyval.optype) = jpiSize; }
-#line 1786 "jsonpath_gram.c"
-    break;
-
-  case 100: /* method: TYPE_P  */
-#line 299 "jsonpath_gram.y"
-                                                                { (yyval.optype) = jpiType; }
-#line 1792 "jsonpath_gram.c"
-    break;
-
-  case 101: /* method: FLOOR_P  */
-#line 300 "jsonpath_gram.y"
-                                                                { (yyval.optype) = jpiFloor; }
-#line 1798 "jsonpath_gram.c"
-    break;
-
-  case 102: /* method: DOUBLE_P  */
+  case 82: /* datetime_precision: INT_P  */
 #line 301 "jsonpath_gram.y"
+                                                                { (yyval.value) = makeItemNumeric(&(yyvsp[0].str)); }
+#line 1878 "jsonpath_gram.c"
+    break;
+
+  case 83: /* opt_datetime_precision: datetime_precision  */
+#line 305 "jsonpath_gram.y"
+                                                        { (yyval.value) = (yyvsp[0].value); }
+#line 1884 "jsonpath_gram.c"
+    break;
+
+  case 84: /* opt_datetime_precision: %empty  */
+#line 306 "jsonpath_gram.y"
+                                                        { (yyval.value) = NULL; }
+#line 1890 "jsonpath_gram.c"
+    break;
+
+  case 85: /* datetime_template: STRING_P  */
+#line 310 "jsonpath_gram.y"
+                                                                { (yyval.value) = makeItemString(&(yyvsp[0].str)); }
+#line 1896 "jsonpath_gram.c"
+    break;
+
+  case 86: /* opt_datetime_template: datetime_template  */
+#line 314 "jsonpath_gram.y"
+                                                        { (yyval.value) = (yyvsp[0].value); }
+#line 1902 "jsonpath_gram.c"
+    break;
+
+  case 87: /* opt_datetime_template: %empty  */
+#line 315 "jsonpath_gram.y"
+                                                        { (yyval.value) = NULL; }
+#line 1908 "jsonpath_gram.c"
+    break;
+
+  case 88: /* key: key_name  */
+#line 319 "jsonpath_gram.y"
+                                                                { (yyval.value) = makeItemKey(&(yyvsp[0].str)); }
+#line 1914 "jsonpath_gram.c"
+    break;
+
+  case 124: /* method: ABS_P  */
+#line 361 "jsonpath_gram.y"
+                                                                { (yyval.optype) = jpiAbs; }
+#line 1920 "jsonpath_gram.c"
+    break;
+
+  case 125: /* method: SIZE_P  */
+#line 362 "jsonpath_gram.y"
+                                                                { (yyval.optype) = jpiSize; }
+#line 1926 "jsonpath_gram.c"
+    break;
+
+  case 126: /* method: TYPE_P  */
+#line 363 "jsonpath_gram.y"
+                                                                { (yyval.optype) = jpiType; }
+#line 1932 "jsonpath_gram.c"
+    break;
+
+  case 127: /* method: FLOOR_P  */
+#line 364 "jsonpath_gram.y"
+                                                                { (yyval.optype) = jpiFloor; }
+#line 1938 "jsonpath_gram.c"
+    break;
+
+  case 128: /* method: DOUBLE_P  */
+#line 365 "jsonpath_gram.y"
                                                                 { (yyval.optype) = jpiDouble; }
-#line 1804 "jsonpath_gram.c"
+#line 1944 "jsonpath_gram.c"
     break;
 
-  case 103: /* method: CEILING_P  */
-#line 302 "jsonpath_gram.y"
+  case 129: /* method: CEILING_P  */
+#line 366 "jsonpath_gram.y"
                                                                 { (yyval.optype) = jpiCeiling; }
-#line 1810 "jsonpath_gram.c"
+#line 1950 "jsonpath_gram.c"
     break;
 
-  case 104: /* method: KEYVALUE_P  */
-#line 303 "jsonpath_gram.y"
+  case 130: /* method: KEYVALUE_P  */
+#line 367 "jsonpath_gram.y"
                                                         { (yyval.optype) = jpiKeyValue; }
-#line 1816 "jsonpath_gram.c"
+#line 1956 "jsonpath_gram.c"
+    break;
+
+  case 131: /* method: BIGINT_P  */
+#line 368 "jsonpath_gram.y"
+                                                                { (yyval.optype) = jpiBigint; }
+#line 1962 "jsonpath_gram.c"
+    break;
+
+  case 132: /* method: BOOLEAN_P  */
+#line 369 "jsonpath_gram.y"
+                                                                { (yyval.optype) = jpiBoolean; }
+#line 1968 "jsonpath_gram.c"
+    break;
+
+  case 133: /* method: DATE_P  */
+#line 370 "jsonpath_gram.y"
+                                                                { (yyval.optype) = jpiDate; }
+#line 1974 "jsonpath_gram.c"
+    break;
+
+  case 134: /* method: INTEGER_P  */
+#line 371 "jsonpath_gram.y"
+                                                                { (yyval.optype) = jpiInteger; }
+#line 1980 "jsonpath_gram.c"
+    break;
+
+  case 135: /* method: NUMBER_P  */
+#line 372 "jsonpath_gram.y"
+                                                                { (yyval.optype) = jpiNumber; }
+#line 1986 "jsonpath_gram.c"
+    break;
+
+  case 136: /* method: STRINGFUNC_P  */
+#line 373 "jsonpath_gram.y"
+                                                        { (yyval.optype) = jpiStringFunc; }
+#line 1992 "jsonpath_gram.c"
     break;
 
 
-#line 1820 "jsonpath_gram.c"
+#line 1996 "jsonpath_gram.c"
 
       default: break;
     }
@@ -2009,7 +2185,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 305 "jsonpath_gram.y"
+#line 375 "jsonpath_gram.y"
 
 
 /*

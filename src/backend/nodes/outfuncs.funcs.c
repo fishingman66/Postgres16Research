@@ -3,7 +3,7 @@
  * outfuncs.funcs.c
  *    Generated node infrastructure code
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  * NOTES
@@ -66,6 +66,7 @@ _outTableFunc(StringInfo str, const TableFunc *node)
 {
 	WRITE_NODE_TYPE("TABLEFUNC");
 
+	WRITE_ENUM_FIELD(functype, TableFuncType);
 	WRITE_NODE_FIELD(ns_uris);
 	WRITE_NODE_FIELD(ns_names);
 	WRITE_NODE_FIELD(docexpr);
@@ -76,7 +77,10 @@ _outTableFunc(StringInfo str, const TableFunc *node)
 	WRITE_NODE_FIELD(colcollations);
 	WRITE_NODE_FIELD(colexprs);
 	WRITE_NODE_FIELD(coldefexprs);
+	WRITE_NODE_FIELD(colvalexprs);
+	WRITE_NODE_FIELD(passingvalexprs);
 	WRITE_BITMAPSET_FIELD(notnulls);
+	WRITE_NODE_FIELD(plan);
 	WRITE_INT_FIELD(ordinalitycol);
 	WRITE_LOCATION_FIELD(location);
 }
@@ -176,9 +180,31 @@ _outWindowFunc(StringInfo str, const WindowFunc *node)
 	WRITE_OID_FIELD(inputcollid);
 	WRITE_NODE_FIELD(args);
 	WRITE_NODE_FIELD(aggfilter);
+	WRITE_NODE_FIELD(runCondition);
 	WRITE_UINT_FIELD(winref);
 	WRITE_BOOL_FIELD(winstar);
 	WRITE_BOOL_FIELD(winagg);
+	WRITE_LOCATION_FIELD(location);
+}
+
+static void
+_outWindowFuncRunCondition(StringInfo str, const WindowFuncRunCondition *node)
+{
+	WRITE_NODE_TYPE("WINDOWFUNCRUNCONDITION");
+
+	WRITE_OID_FIELD(opno);
+	WRITE_OID_FIELD(inputcollid);
+	WRITE_BOOL_FIELD(wfunc_left);
+	WRITE_NODE_FIELD(arg);
+}
+
+static void
+_outMergeSupportFunc(StringInfo str, const MergeSupportFunc *node)
+{
+	WRITE_NODE_TYPE("MERGESUPPORTFUNC");
+
+	WRITE_OID_FIELD(msftype);
+	WRITE_OID_FIELD(msfcollid);
 	WRITE_LOCATION_FIELD(location);
 }
 
@@ -593,6 +619,70 @@ _outJsonIsPredicate(StringInfo str, const JsonIsPredicate *node)
 }
 
 static void
+_outJsonBehavior(StringInfo str, const JsonBehavior *node)
+{
+	WRITE_NODE_TYPE("JSONBEHAVIOR");
+
+	WRITE_ENUM_FIELD(btype, JsonBehaviorType);
+	WRITE_NODE_FIELD(expr);
+	WRITE_BOOL_FIELD(coerce);
+	WRITE_LOCATION_FIELD(location);
+}
+
+static void
+_outJsonExpr(StringInfo str, const JsonExpr *node)
+{
+	WRITE_NODE_TYPE("JSONEXPR");
+
+	WRITE_ENUM_FIELD(op, JsonExprOp);
+	WRITE_STRING_FIELD(column_name);
+	WRITE_NODE_FIELD(formatted_expr);
+	WRITE_NODE_FIELD(format);
+	WRITE_NODE_FIELD(path_spec);
+	WRITE_NODE_FIELD(returning);
+	WRITE_NODE_FIELD(passing_names);
+	WRITE_NODE_FIELD(passing_values);
+	WRITE_NODE_FIELD(on_empty);
+	WRITE_NODE_FIELD(on_error);
+	WRITE_BOOL_FIELD(use_io_coercion);
+	WRITE_BOOL_FIELD(use_json_coercion);
+	WRITE_ENUM_FIELD(wrapper, JsonWrapper);
+	WRITE_BOOL_FIELD(omit_quotes);
+	WRITE_OID_FIELD(collation);
+	WRITE_LOCATION_FIELD(location);
+}
+
+static void
+_outJsonTablePath(StringInfo str, const JsonTablePath *node)
+{
+	WRITE_NODE_TYPE("JSONTABLEPATH");
+
+	WRITE_NODE_FIELD(value);
+	WRITE_STRING_FIELD(name);
+}
+
+static void
+_outJsonTablePathScan(StringInfo str, const JsonTablePathScan *node)
+{
+	WRITE_NODE_TYPE("JSONTABLEPATHSCAN");
+
+	WRITE_NODE_FIELD(path);
+	WRITE_BOOL_FIELD(errorOnError);
+	WRITE_NODE_FIELD(child);
+	WRITE_INT_FIELD(colMin);
+	WRITE_INT_FIELD(colMax);
+}
+
+static void
+_outJsonTableSiblingJoin(StringInfo str, const JsonTableSiblingJoin *node)
+{
+	WRITE_NODE_TYPE("JSONTABLESIBLINGJOIN");
+
+	WRITE_NODE_FIELD(lplan);
+	WRITE_NODE_FIELD(rplan);
+}
+
+static void
 _outNullTest(StringInfo str, const NullTest *node)
 {
 	WRITE_NODE_TYPE("NULLTEST");
@@ -611,6 +701,19 @@ _outBooleanTest(StringInfo str, const BooleanTest *node)
 	WRITE_NODE_FIELD(arg);
 	WRITE_ENUM_FIELD(booltesttype, BoolTestType);
 	WRITE_LOCATION_FIELD(location);
+}
+
+static void
+_outMergeAction(StringInfo str, const MergeAction *node)
+{
+	WRITE_NODE_TYPE("MERGEACTION");
+
+	WRITE_ENUM_FIELD(matchKind, MergeMatchKind);
+	WRITE_ENUM_FIELD(commandType, CmdType);
+	WRITE_ENUM_FIELD(override, OverridingKind);
+	WRITE_NODE_FIELD(qual);
+	WRITE_NODE_FIELD(targetList);
+	WRITE_NODE_FIELD(updateColnos);
 }
 
 static void
@@ -764,7 +867,8 @@ _outQuery(StringInfo str, const Query *node)
 	WRITE_NODE_FIELD(rteperminfos);
 	WRITE_NODE_FIELD(jointree);
 	WRITE_NODE_FIELD(mergeActionList);
-	WRITE_BOOL_FIELD(mergeUseOuterJoin);
+	WRITE_INT_FIELD(mergeTargetRelation);
+	WRITE_NODE_FIELD(mergeJoinCondition);
 	WRITE_NODE_FIELD(targetList);
 	WRITE_ENUM_FIELD(override, OverridingKind);
 	WRITE_NODE_FIELD(onConflict);
@@ -784,7 +888,7 @@ _outQuery(StringInfo str, const Query *node)
 	WRITE_NODE_FIELD(constraintDeps);
 	WRITE_NODE_FIELD(withCheckOptions);
 	WRITE_LOCATION_FIELD(stmt_location);
-	WRITE_INT_FIELD(stmt_len);
+	WRITE_LOCATION_FIELD(stmt_len);
 }
 
 static void
@@ -1147,6 +1251,13 @@ _outPartitionRangeDatum(StringInfo str, const PartitionRangeDatum *node)
 }
 
 static void
+_outSinglePartitionSpec(StringInfo str, const SinglePartitionSpec *node)
+{
+	WRITE_NODE_TYPE("SINGLEPARTITIONSPEC");
+
+}
+
+static void
 _outPartitionCmd(StringInfo str, const PartitionCmd *node)
 {
 	WRITE_NODE_TYPE("PARTITIONCMD");
@@ -1240,7 +1351,6 @@ _outWindowClause(StringInfo str, const WindowClause *node)
 	WRITE_INT_FIELD(frameOptions);
 	WRITE_NODE_FIELD(startOffset);
 	WRITE_NODE_FIELD(endOffset);
-	WRITE_NODE_FIELD(runCondition);
 	WRITE_OID_FIELD(startInRangeFunc);
 	WRITE_OID_FIELD(endInRangeFunc);
 	WRITE_OID_FIELD(inRangeColl);
@@ -1347,25 +1457,12 @@ _outMergeWhenClause(StringInfo str, const MergeWhenClause *node)
 {
 	WRITE_NODE_TYPE("MERGEWHENCLAUSE");
 
-	WRITE_BOOL_FIELD(matched);
+	WRITE_ENUM_FIELD(matchKind, MergeMatchKind);
 	WRITE_ENUM_FIELD(commandType, CmdType);
 	WRITE_ENUM_FIELD(override, OverridingKind);
 	WRITE_NODE_FIELD(condition);
 	WRITE_NODE_FIELD(targetList);
 	WRITE_NODE_FIELD(values);
-}
-
-static void
-_outMergeAction(StringInfo str, const MergeAction *node)
-{
-	WRITE_NODE_TYPE("MERGEACTION");
-
-	WRITE_BOOL_FIELD(matched);
-	WRITE_ENUM_FIELD(commandType, CmdType);
-	WRITE_ENUM_FIELD(override, OverridingKind);
-	WRITE_NODE_FIELD(qual);
-	WRITE_NODE_FIELD(targetList);
-	WRITE_NODE_FIELD(updateColnos);
 }
 
 static void
@@ -1388,12 +1485,114 @@ _outJsonOutput(StringInfo str, const JsonOutput *node)
 }
 
 static void
+_outJsonArgument(StringInfo str, const JsonArgument *node)
+{
+	WRITE_NODE_TYPE("JSONARGUMENT");
+
+	WRITE_NODE_FIELD(val);
+	WRITE_STRING_FIELD(name);
+}
+
+static void
+_outJsonFuncExpr(StringInfo str, const JsonFuncExpr *node)
+{
+	WRITE_NODE_TYPE("JSONFUNCEXPR");
+
+	WRITE_ENUM_FIELD(op, JsonExprOp);
+	WRITE_STRING_FIELD(column_name);
+	WRITE_NODE_FIELD(context_item);
+	WRITE_NODE_FIELD(pathspec);
+	WRITE_NODE_FIELD(passing);
+	WRITE_NODE_FIELD(output);
+	WRITE_NODE_FIELD(on_empty);
+	WRITE_NODE_FIELD(on_error);
+	WRITE_ENUM_FIELD(wrapper, JsonWrapper);
+	WRITE_ENUM_FIELD(quotes, JsonQuotes);
+	WRITE_LOCATION_FIELD(location);
+}
+
+static void
+_outJsonTablePathSpec(StringInfo str, const JsonTablePathSpec *node)
+{
+	WRITE_NODE_TYPE("JSONTABLEPATHSPEC");
+
+	WRITE_NODE_FIELD(string);
+	WRITE_STRING_FIELD(name);
+	WRITE_LOCATION_FIELD(name_location);
+	WRITE_LOCATION_FIELD(location);
+}
+
+static void
+_outJsonTable(StringInfo str, const JsonTable *node)
+{
+	WRITE_NODE_TYPE("JSONTABLE");
+
+	WRITE_NODE_FIELD(context_item);
+	WRITE_NODE_FIELD(pathspec);
+	WRITE_NODE_FIELD(passing);
+	WRITE_NODE_FIELD(columns);
+	WRITE_NODE_FIELD(on_error);
+	WRITE_NODE_FIELD(alias);
+	WRITE_BOOL_FIELD(lateral);
+	WRITE_LOCATION_FIELD(location);
+}
+
+static void
+_outJsonTableColumn(StringInfo str, const JsonTableColumn *node)
+{
+	WRITE_NODE_TYPE("JSONTABLECOLUMN");
+
+	WRITE_ENUM_FIELD(coltype, JsonTableColumnType);
+	WRITE_STRING_FIELD(name);
+	WRITE_NODE_FIELD(typeName);
+	WRITE_NODE_FIELD(pathspec);
+	WRITE_NODE_FIELD(format);
+	WRITE_ENUM_FIELD(wrapper, JsonWrapper);
+	WRITE_ENUM_FIELD(quotes, JsonQuotes);
+	WRITE_NODE_FIELD(columns);
+	WRITE_NODE_FIELD(on_empty);
+	WRITE_NODE_FIELD(on_error);
+	WRITE_LOCATION_FIELD(location);
+}
+
+static void
 _outJsonKeyValue(StringInfo str, const JsonKeyValue *node)
 {
 	WRITE_NODE_TYPE("JSONKEYVALUE");
 
 	WRITE_NODE_FIELD(key);
 	WRITE_NODE_FIELD(value);
+}
+
+static void
+_outJsonParseExpr(StringInfo str, const JsonParseExpr *node)
+{
+	WRITE_NODE_TYPE("JSONPARSEEXPR");
+
+	WRITE_NODE_FIELD(expr);
+	WRITE_NODE_FIELD(output);
+	WRITE_BOOL_FIELD(unique_keys);
+	WRITE_LOCATION_FIELD(location);
+}
+
+static void
+_outJsonScalarExpr(StringInfo str, const JsonScalarExpr *node)
+{
+	WRITE_NODE_TYPE("JSONSCALAREXPR");
+
+	WRITE_NODE_FIELD(expr);
+	WRITE_NODE_FIELD(output);
+	WRITE_LOCATION_FIELD(location);
+}
+
+static void
+_outJsonSerializeExpr(StringInfo str, const JsonSerializeExpr *node)
+{
+	WRITE_NODE_TYPE("JSONSERIALIZEEXPR");
+
+	WRITE_NODE_FIELD(expr);
+	WRITE_NODE_FIELD(output);
+	WRITE_LOCATION_FIELD(location);
 }
 
 static void
@@ -1471,7 +1670,7 @@ _outRawStmt(StringInfo str, const RawStmt *node)
 
 	WRITE_NODE_FIELD(stmt);
 	WRITE_LOCATION_FIELD(stmt_location);
-	WRITE_INT_FIELD(stmt_len);
+	WRITE_LOCATION_FIELD(stmt_len);
 }
 
 static void
@@ -1522,6 +1721,7 @@ _outMergeStmt(StringInfo str, const MergeStmt *node)
 	WRITE_NODE_FIELD(sourceRelation);
 	WRITE_NODE_FIELD(joinCondition);
 	WRITE_NODE_FIELD(mergeWhenClauses);
+	WRITE_NODE_FIELD(returningList);
 	WRITE_NODE_FIELD(withClause);
 }
 
@@ -1763,6 +1963,44 @@ _outCreateStmt(StringInfo str, const CreateStmt *node)
 	WRITE_STRING_FIELD(tablespacename);
 	WRITE_STRING_FIELD(accessMethod);
 	WRITE_BOOL_FIELD(if_not_exists);
+}
+
+static void
+_outConstraint(StringInfo str, const Constraint *node)
+{
+	WRITE_NODE_TYPE("CONSTRAINT");
+
+	WRITE_ENUM_FIELD(contype, ConstrType);
+	WRITE_STRING_FIELD(conname);
+	WRITE_BOOL_FIELD(deferrable);
+	WRITE_BOOL_FIELD(initdeferred);
+	WRITE_BOOL_FIELD(skip_validation);
+	WRITE_BOOL_FIELD(initially_valid);
+	WRITE_BOOL_FIELD(is_no_inherit);
+	WRITE_NODE_FIELD(raw_expr);
+	WRITE_STRING_FIELD(cooked_expr);
+	WRITE_CHAR_FIELD(generated_when);
+	WRITE_INT_FIELD(inhcount);
+	WRITE_BOOL_FIELD(nulls_not_distinct);
+	WRITE_NODE_FIELD(keys);
+	WRITE_NODE_FIELD(including);
+	WRITE_NODE_FIELD(exclusions);
+	WRITE_NODE_FIELD(options);
+	WRITE_STRING_FIELD(indexname);
+	WRITE_STRING_FIELD(indexspace);
+	WRITE_BOOL_FIELD(reset_default_tblspc);
+	WRITE_STRING_FIELD(access_method);
+	WRITE_NODE_FIELD(where_clause);
+	WRITE_NODE_FIELD(pktable);
+	WRITE_NODE_FIELD(fk_attrs);
+	WRITE_NODE_FIELD(pk_attrs);
+	WRITE_CHAR_FIELD(fk_matchtype);
+	WRITE_CHAR_FIELD(fk_upd_action);
+	WRITE_CHAR_FIELD(fk_del_action);
+	WRITE_NODE_FIELD(fk_del_set_cols);
+	WRITE_NODE_FIELD(old_conpfeqop);
+	WRITE_OID_FIELD(old_pktable_oid);
+	WRITE_LOCATION_FIELD(location);
 }
 
 static void
@@ -2302,7 +2540,7 @@ _outAlterStatsStmt(StringInfo str, const AlterStatsStmt *node)
 	WRITE_NODE_TYPE("ALTERSTATSSTMT");
 
 	WRITE_NODE_FIELD(defnames);
-	WRITE_INT_FIELD(stxstattarget);
+	WRITE_NODE_FIELD(stxstattarget);
 	WRITE_BOOL_FIELD(missing_ok);
 }
 
@@ -2476,6 +2714,7 @@ _outTransactionStmt(StringInfo str, const TransactionStmt *node)
 	WRITE_STRING_FIELD(savepoint_name);
 	WRITE_STRING_FIELD(gid);
 	WRITE_BOOL_FIELD(chain);
+	WRITE_LOCATION_FIELD(location);
 }
 
 static void
@@ -2759,6 +2998,8 @@ _outDeallocateStmt(StringInfo str, const DeallocateStmt *node)
 	WRITE_NODE_TYPE("DEALLOCATESTMT");
 
 	WRITE_STRING_FIELD(name);
+	WRITE_BOOL_FIELD(isall);
+	WRITE_LOCATION_FIELD(location);
 }
 
 static void
@@ -2885,6 +3126,7 @@ _outPlannerGlobal(StringInfo str, const PlannerGlobal *node)
 	WRITE_NODE_TYPE("PLANNERGLOBAL");
 
 	WRITE_NODE_FIELD(subplans);
+	WRITE_NODE_FIELD(subpaths);
 	WRITE_BITMAPSET_FIELD(rewindPlanIDs);
 	WRITE_NODE_FIELD(finalrtable);
 	WRITE_NODE_FIELD(finalrteperminfos);
@@ -2946,6 +3188,7 @@ _outPlannerInfo(StringInfo str, const PlannerInfo *node)
 	WRITE_NODE_FIELD(window_pathkeys);
 	WRITE_NODE_FIELD(distinct_pathkeys);
 	WRITE_NODE_FIELD(sort_pathkeys);
+	WRITE_NODE_FIELD(setop_pathkeys);
 	WRITE_NODE_FIELD(processed_groupClause);
 	WRITE_NODE_FIELD(processed_distinctClause);
 	WRITE_NODE_FIELD(processed_tlist);
@@ -3000,6 +3243,7 @@ _outRelOptInfo(StringInfo str, const RelOptInfo *node)
 	WRITE_ENUM_FIELD(rtekind, RTEKind);
 	WRITE_INT_FIELD(min_attr);
 	WRITE_INT_FIELD(max_attr);
+	WRITE_BITMAPSET_FIELD(notnullattnums);
 	WRITE_BITMAPSET_FIELD(nulling_relids);
 	WRITE_NODE_FIELD(lateral_vars);
 	WRITE_BITMAPSET_FIELD(lateral_referencers);
@@ -3113,6 +3357,15 @@ _outPathKey(StringInfo str, const PathKey *node)
 	WRITE_OID_FIELD(pk_opfamily);
 	WRITE_INT_FIELD(pk_strategy);
 	WRITE_BOOL_FIELD(pk_nulls_first);
+}
+
+static void
+_outGroupByOrdering(StringInfo str, const GroupByOrdering *node)
+{
+	WRITE_NODE_TYPE("GROUPBYORDERING");
+
+	WRITE_NODE_FIELD(pathkeys);
+	WRITE_NODE_FIELD(clauses);
 }
 
 static void
@@ -3381,6 +3634,7 @@ _outForeignPath(StringInfo str, const ForeignPath *node)
 	WRITE_FLOAT_FIELD(path.total_cost);
 	WRITE_NODE_FIELD(path.pathkeys);
 	WRITE_NODE_FIELD(fdw_outerpath);
+	WRITE_NODE_FIELD(fdw_restrictinfo);
 	WRITE_NODE_FIELD(fdw_private);
 }
 
@@ -3408,6 +3662,7 @@ _outCustomPath(StringInfo str, const CustomPath *node)
 	WRITE_NODE_FIELD(path.pathkeys);
 	WRITE_UINT_FIELD(flags);
 	WRITE_NODE_FIELD(custom_paths);
+	WRITE_NODE_FIELD(custom_restrictinfo);
 	WRITE_NODE_FIELD(custom_private);
 
 	/* CustomName is a key to lookup CustomScanMethods */
@@ -4013,6 +4268,7 @@ _outWindowAggPath(StringInfo str, const WindowAggPath *node)
 	WRITE_NODE_FIELD(subpath);
 	WRITE_NODE_FIELD(winclause);
 	WRITE_NODE_FIELD(qual);
+	WRITE_NODE_FIELD(runCondition);
 	WRITE_BOOL_FIELD(topwindow);
 }
 
@@ -4139,6 +4395,7 @@ _outModifyTablePath(StringInfo str, const ModifyTablePath *node)
 	WRITE_NODE_FIELD(onconflict);
 	WRITE_INT_FIELD(epqParam);
 	WRITE_NODE_FIELD(mergeActionLists);
+	WRITE_NODE_FIELD(mergeJoinConditions);
 }
 
 static void
@@ -4370,7 +4627,7 @@ _outPlannedStmt(StringInfo str, const PlannedStmt *node)
 	WRITE_NODE_FIELD(paramExecTypes);
 	WRITE_NODE_FIELD(utilityStmt);
 	WRITE_LOCATION_FIELD(stmt_location);
-	WRITE_INT_FIELD(stmt_len);
+	WRITE_LOCATION_FIELD(stmt_len);
 }
 
 static void
@@ -4459,6 +4716,7 @@ _outModifyTable(StringInfo str, const ModifyTable *node)
 	WRITE_UINT_FIELD(exclRelRTI);
 	WRITE_NODE_FIELD(exclRelTlist);
 	WRITE_NODE_FIELD(mergeActionLists);
+	WRITE_NODE_FIELD(mergeJoinConditions);
 }
 
 static void

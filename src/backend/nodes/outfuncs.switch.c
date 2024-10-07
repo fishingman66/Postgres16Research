@@ -3,7 +3,7 @@
  * outfuncs.switch.c
  *    Generated node infrastructure code
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  * NOTES
@@ -44,6 +44,12 @@
 				break;
 			case T_WindowFunc:
 				_outWindowFunc(str, obj);
+				break;
+			case T_WindowFuncRunCondition:
+				_outWindowFuncRunCondition(str, obj);
+				break;
+			case T_MergeSupportFunc:
+				_outMergeSupportFunc(str, obj);
 				break;
 			case T_SubscriptingRef:
 				_outSubscriptingRef(str, obj);
@@ -144,11 +150,29 @@
 			case T_JsonIsPredicate:
 				_outJsonIsPredicate(str, obj);
 				break;
+			case T_JsonBehavior:
+				_outJsonBehavior(str, obj);
+				break;
+			case T_JsonExpr:
+				_outJsonExpr(str, obj);
+				break;
+			case T_JsonTablePath:
+				_outJsonTablePath(str, obj);
+				break;
+			case T_JsonTablePathScan:
+				_outJsonTablePathScan(str, obj);
+				break;
+			case T_JsonTableSiblingJoin:
+				_outJsonTableSiblingJoin(str, obj);
+				break;
 			case T_NullTest:
 				_outNullTest(str, obj);
 				break;
 			case T_BooleanTest:
 				_outBooleanTest(str, obj);
+				break;
+			case T_MergeAction:
+				_outMergeAction(str, obj);
 				break;
 			case T_CoerceToDomain:
 				_outCoerceToDomain(str, obj);
@@ -282,6 +306,9 @@
 			case T_PartitionRangeDatum:
 				_outPartitionRangeDatum(str, obj);
 				break;
+			case T_SinglePartitionSpec:
+				_outSinglePartitionSpec(str, obj);
+				break;
 			case T_PartitionCmd:
 				_outPartitionCmd(str, obj);
 				break;
@@ -333,17 +360,38 @@
 			case T_MergeWhenClause:
 				_outMergeWhenClause(str, obj);
 				break;
-			case T_MergeAction:
-				_outMergeAction(str, obj);
-				break;
 			case T_TriggerTransition:
 				_outTriggerTransition(str, obj);
 				break;
 			case T_JsonOutput:
 				_outJsonOutput(str, obj);
 				break;
+			case T_JsonArgument:
+				_outJsonArgument(str, obj);
+				break;
+			case T_JsonFuncExpr:
+				_outJsonFuncExpr(str, obj);
+				break;
+			case T_JsonTablePathSpec:
+				_outJsonTablePathSpec(str, obj);
+				break;
+			case T_JsonTable:
+				_outJsonTable(str, obj);
+				break;
+			case T_JsonTableColumn:
+				_outJsonTableColumn(str, obj);
+				break;
 			case T_JsonKeyValue:
 				_outJsonKeyValue(str, obj);
+				break;
+			case T_JsonParseExpr:
+				_outJsonParseExpr(str, obj);
+				break;
+			case T_JsonScalarExpr:
+				_outJsonScalarExpr(str, obj);
+				break;
+			case T_JsonSerializeExpr:
+				_outJsonSerializeExpr(str, obj);
 				break;
 			case T_JsonObjectConstructor:
 				_outJsonObjectConstructor(str, obj);
@@ -773,6 +821,9 @@
 				break;
 			case T_PathKey:
 				_outPathKey(str, obj);
+				break;
+			case T_GroupByOrdering:
+				_outGroupByOrdering(str, obj);
 				break;
 			case T_PathTarget:
 				_outPathTarget(str, obj);

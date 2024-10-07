@@ -3,7 +3,7 @@
  * readfuncs.switch.c
  *    Generated node infrastructure code
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  * NOTES
@@ -35,6 +35,10 @@
 		return (Node *) _readGroupingFunc();
 	if (MATCH("WINDOWFUNC", 10))
 		return (Node *) _readWindowFunc();
+	if (MATCH("WINDOWFUNCRUNCONDITION", 22))
+		return (Node *) _readWindowFuncRunCondition();
+	if (MATCH("MERGESUPPORTFUNC", 16))
+		return (Node *) _readMergeSupportFunc();
 	if (MATCH("SUBSCRIPTINGREF", 15))
 		return (Node *) _readSubscriptingRef();
 	if (MATCH("FUNCEXPR", 8))
@@ -101,10 +105,22 @@
 		return (Node *) _readJsonConstructorExpr();
 	if (MATCH("JSONISPREDICATE", 15))
 		return (Node *) _readJsonIsPredicate();
+	if (MATCH("JSONBEHAVIOR", 12))
+		return (Node *) _readJsonBehavior();
+	if (MATCH("JSONEXPR", 8))
+		return (Node *) _readJsonExpr();
+	if (MATCH("JSONTABLEPATH", 13))
+		return (Node *) _readJsonTablePath();
+	if (MATCH("JSONTABLEPATHSCAN", 17))
+		return (Node *) _readJsonTablePathScan();
+	if (MATCH("JSONTABLESIBLINGJOIN", 20))
+		return (Node *) _readJsonTableSiblingJoin();
 	if (MATCH("NULLTEST", 8))
 		return (Node *) _readNullTest();
 	if (MATCH("BOOLEANTEST", 11))
 		return (Node *) _readBooleanTest();
+	if (MATCH("MERGEACTION", 11))
+		return (Node *) _readMergeAction();
 	if (MATCH("COERCETODOMAIN", 14))
 		return (Node *) _readCoerceToDomain();
 	if (MATCH("COERCETODOMAINVALUE", 19))
@@ -193,6 +209,8 @@
 		return (Node *) _readPartitionBoundSpec();
 	if (MATCH("PARTITIONRANGEDATUM", 19))
 		return (Node *) _readPartitionRangeDatum();
+	if (MATCH("SINGLEPARTITIONSPEC", 19))
+		return (Node *) _readSinglePartitionSpec();
 	if (MATCH("PARTITIONCMD", 12))
 		return (Node *) _readPartitionCmd();
 	if (MATCH("RANGETBLENTRY", 13))
@@ -227,14 +245,28 @@
 		return (Node *) _readCommonTableExpr();
 	if (MATCH("MERGEWHENCLAUSE", 15))
 		return (Node *) _readMergeWhenClause();
-	if (MATCH("MERGEACTION", 11))
-		return (Node *) _readMergeAction();
 	if (MATCH("TRIGGERTRANSITION", 17))
 		return (Node *) _readTriggerTransition();
 	if (MATCH("JSONOUTPUT", 10))
 		return (Node *) _readJsonOutput();
+	if (MATCH("JSONARGUMENT", 12))
+		return (Node *) _readJsonArgument();
+	if (MATCH("JSONFUNCEXPR", 12))
+		return (Node *) _readJsonFuncExpr();
+	if (MATCH("JSONTABLEPATHSPEC", 17))
+		return (Node *) _readJsonTablePathSpec();
+	if (MATCH("JSONTABLE", 9))
+		return (Node *) _readJsonTable();
+	if (MATCH("JSONTABLECOLUMN", 15))
+		return (Node *) _readJsonTableColumn();
 	if (MATCH("JSONKEYVALUE", 12))
 		return (Node *) _readJsonKeyValue();
+	if (MATCH("JSONPARSEEXPR", 13))
+		return (Node *) _readJsonParseExpr();
+	if (MATCH("JSONSCALAREXPR", 14))
+		return (Node *) _readJsonScalarExpr();
+	if (MATCH("JSONSERIALIZEEXPR", 17))
+		return (Node *) _readJsonSerializeExpr();
 	if (MATCH("JSONOBJECTCONSTRUCTOR", 21))
 		return (Node *) _readJsonObjectConstructor();
 	if (MATCH("JSONARRAYCONSTRUCTOR", 20))
@@ -501,6 +533,8 @@
 		return (Node *) _readAlterSubscriptionStmt();
 	if (MATCH("DROPSUBSCRIPTIONSTMT", 20))
 		return (Node *) _readDropSubscriptionStmt();
+	if (MATCH("GROUPBYORDERING", 15))
+		return (Node *) _readGroupByOrdering();
 	if (MATCH("PLACEHOLDERVAR", 14))
 		return (Node *) _readPlaceHolderVar();
 	if (MATCH("APPENDRELINFO", 13))

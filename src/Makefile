@@ -60,7 +60,7 @@ clean:
 	$(MAKE) -C tutorial NO_PGXS=1 $@
 	$(MAKE) -C tools/pg_bsd_indent $@
 
-distclean maintainer-clean:
+distclean:
 	$(MAKE) -C tutorial NO_PGXS=1 $@
 	$(MAKE) -C tools/pg_bsd_indent $@
 	rm -f Makefile.port Makefile.global

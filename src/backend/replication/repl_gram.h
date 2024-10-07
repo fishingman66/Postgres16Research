@@ -65,18 +65,20 @@ extern int replication_yydebug;
     K_START_REPLICATION = 266,     /* K_START_REPLICATION  */
     K_CREATE_REPLICATION_SLOT = 267, /* K_CREATE_REPLICATION_SLOT  */
     K_DROP_REPLICATION_SLOT = 268, /* K_DROP_REPLICATION_SLOT  */
-    K_TIMELINE_HISTORY = 269,      /* K_TIMELINE_HISTORY  */
-    K_WAIT = 270,                  /* K_WAIT  */
-    K_TIMELINE = 271,              /* K_TIMELINE  */
-    K_PHYSICAL = 272,              /* K_PHYSICAL  */
-    K_LOGICAL = 273,               /* K_LOGICAL  */
-    K_SLOT = 274,                  /* K_SLOT  */
-    K_RESERVE_WAL = 275,           /* K_RESERVE_WAL  */
-    K_TEMPORARY = 276,             /* K_TEMPORARY  */
-    K_TWO_PHASE = 277,             /* K_TWO_PHASE  */
-    K_EXPORT_SNAPSHOT = 278,       /* K_EXPORT_SNAPSHOT  */
-    K_NOEXPORT_SNAPSHOT = 279,     /* K_NOEXPORT_SNAPSHOT  */
-    K_USE_SNAPSHOT = 280           /* K_USE_SNAPSHOT  */
+    K_ALTER_REPLICATION_SLOT = 269, /* K_ALTER_REPLICATION_SLOT  */
+    K_TIMELINE_HISTORY = 270,      /* K_TIMELINE_HISTORY  */
+    K_WAIT = 271,                  /* K_WAIT  */
+    K_TIMELINE = 272,              /* K_TIMELINE  */
+    K_PHYSICAL = 273,              /* K_PHYSICAL  */
+    K_LOGICAL = 274,               /* K_LOGICAL  */
+    K_SLOT = 275,                  /* K_SLOT  */
+    K_RESERVE_WAL = 276,           /* K_RESERVE_WAL  */
+    K_TEMPORARY = 277,             /* K_TEMPORARY  */
+    K_TWO_PHASE = 278,             /* K_TWO_PHASE  */
+    K_EXPORT_SNAPSHOT = 279,       /* K_EXPORT_SNAPSHOT  */
+    K_NOEXPORT_SNAPSHOT = 280,     /* K_NOEXPORT_SNAPSHOT  */
+    K_USE_SNAPSHOT = 281,          /* K_USE_SNAPSHOT  */
+    K_UPLOAD_MANIFEST = 282        /* K_UPLOAD_MANIFEST  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -95,7 +97,7 @@ union YYSTYPE
 	List	   *list;
 	DefElem	   *defelt;
 
-#line 99 "repl_gram.h"
+#line 101 "repl_gram.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -91,7 +91,18 @@ extern int jsonpath_yydebug;
     CEILING_P = 292,               /* CEILING_P  */
     KEYVALUE_P = 293,              /* KEYVALUE_P  */
     DATETIME_P = 294,              /* DATETIME_P  */
-    UMINUS = 295                   /* UMINUS  */
+    BIGINT_P = 295,                /* BIGINT_P  */
+    BOOLEAN_P = 296,               /* BOOLEAN_P  */
+    DATE_P = 297,                  /* DATE_P  */
+    DECIMAL_P = 298,               /* DECIMAL_P  */
+    INTEGER_P = 299,               /* INTEGER_P  */
+    NUMBER_P = 300,                /* NUMBER_P  */
+    STRINGFUNC_P = 301,            /* STRINGFUNC_P  */
+    TIME_P = 302,                  /* TIME_P  */
+    TIME_TZ_P = 303,               /* TIME_TZ_P  */
+    TIMESTAMP_P = 304,             /* TIMESTAMP_P  */
+    TIMESTAMP_TZ_P = 305,          /* TIMESTAMP_TZ_P  */
+    UMINUS = 306                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -111,7 +122,7 @@ union YYSTYPE
 	bool				boolean;
 	int					integer;
 
-#line 115 "jsonpath_gram.h"
+#line 126 "jsonpath_gram.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

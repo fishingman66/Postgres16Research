@@ -12,7 +12,7 @@
  * respective utility commands.
  *
  *
- * Portions Copyright (c) 1996-2023, PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2024, PostgreSQL Global Development Group
  * Portions Copyright (c) 1994, Regents of the University of California
  *
  *	src/backend/parser/parse_utilcmd.c
@@ -365,30 +365,22 @@ generateSerialExtraStmts(CreateStmtContext *cxt, ColumnDef *column,
 {
 	ListCell   *option;
 	DefElem    *nameEl = NULL;
+	DefElem    *loggedEl = NULL;
 	Oid			snamespaceid;
 	char	   *snamespace;
 	char	   *sname;
+	char		seqpersistence;
 	CreateSeqStmt *seqstmt;
 	AlterSeqStmt *altseqstmt;
 	List	   *attnamelist;
-	int			nameEl_idx = -1;
 
 	/* Make a copy of this as we may end up modifying it in the code below */
 	seqoptions = list_copy(seqoptions);
 
 	/*
-	 * Determine namespace and name to use for the sequence.
-	 *
-	 * First, check if a sequence name was passed in as an option.  This is
-	 * used by pg_dump.  Else, generate a name.
-	 *
-	 * Although we use ChooseRelationName, it's not guaranteed that the
-	 * selected sequence name won't conflict; given sufficiently long field
-	 * names, two different serial columns in the same table could be assigned
-	 * the same sequence name, and we'd not notice since we aren't creating
-	 * the sequence quite yet.  In practice this seems quite unlikely to be a
-	 * problem, especially since few people would need two serial columns in
-	 * one table.
+	 * Check for non-SQL-standard options (not supported within CREATE
+	 * SEQUENCE, because they'd be redundant), and remove them from the
+	 * seqoptions list if found.
 	 */
 	foreach(option, seqoptions)
 	{
@@ -399,12 +391,24 @@ generateSerialExtraStmts(CreateStmtContext *cxt, ColumnDef *column,
 			if (nameEl)
 				errorConflictingDefElem(defel, cxt->pstate);
 			nameEl = defel;
-			nameEl_idx = foreach_current_index(option);
+			seqoptions = foreach_delete_current(seqoptions, option);
+		}
+		else if (strcmp(defel->defname, "logged") == 0 ||
+				 strcmp(defel->defname, "unlogged") == 0)
+		{
+			if (loggedEl)
+				errorConflictingDefElem(defel, cxt->pstate);
+			loggedEl = defel;
+			seqoptions = foreach_delete_current(seqoptions, option);
 		}
 	}
 
+	/*
+	 * Determine namespace and name to use for the sequence.
+	 */
 	if (nameEl)
 	{
+		/* Use specified name */
 		RangeVar   *rv = makeRangeVarFromNameList(castNode(List, nameEl->arg));
 
 		snamespace = rv->schemaname;
@@ -418,11 +422,20 @@ generateSerialExtraStmts(CreateStmtContext *cxt, ColumnDef *column,
 			snamespace = get_namespace_name(snamespaceid);
 		}
 		sname = rv->relname;
-		/* Remove the SEQUENCE NAME item from seqoptions */
-		seqoptions = list_delete_nth_cell(seqoptions, nameEl_idx);
 	}
 	else
 	{
+		/*
+		 * Generate a name.
+		 *
+		 * Although we use ChooseRelationName, it's not guaranteed that the
+		 * selected sequence name won't conflict; given sufficiently long
+		 * field names, two different serial columns in the same table could
+		 * be assigned the same sequence name, and we'd not notice since we
+		 * aren't creating the sequence quite yet.  In practice this seems
+		 * quite unlikely to be a problem, especially since few people would
+		 * need two serial columns in one table.
+		 */
 		if (cxt->rel)
 			snamespaceid = RelationGetNamespace(cxt->rel);
 		else
@@ -444,22 +457,37 @@ generateSerialExtraStmts(CreateStmtContext *cxt, ColumnDef *column,
 							 cxt->relation->relname, column->colname)));
 
 	/*
+	 * Determine the persistence of the sequence.  By default we copy the
+	 * persistence of the table, but if LOGGED or UNLOGGED was specified, use
+	 * that (as long as the table isn't TEMP).
+	 *
+	 * For CREATE TABLE, we get the persistence from cxt->relation, which
+	 * comes from the CreateStmt in progress.  For ALTER TABLE, the parser
+	 * won't set cxt->relation->relpersistence, but we have cxt->rel as the
+	 * existing table, so we copy the persistence from there.
+	 */
+	seqpersistence = cxt->rel ? cxt->rel->rd_rel->relpersistence : cxt->relation->relpersistence;
+	if (loggedEl)
+	{
+		if (seqpersistence == RELPERSISTENCE_TEMP)
+			ereport(ERROR,
+					(errcode(ERRCODE_INVALID_TABLE_DEFINITION),
+					 errmsg("cannot set logged status of a temporary sequence"),
+					 parser_errposition(cxt->pstate, loggedEl->location)));
+		else if (strcmp(loggedEl->defname, "logged") == 0)
+			seqpersistence = RELPERSISTENCE_PERMANENT;
+		else
+			seqpersistence = RELPERSISTENCE_UNLOGGED;
+	}
+
+	/*
 	 * Build a CREATE SEQUENCE command to create the sequence object, and add
 	 * it to the list of things to be done before this CREATE/ALTER TABLE.
 	 */
 	seqstmt = makeNode(CreateSeqStmt);
 	seqstmt->for_identity = for_identity;
 	seqstmt->sequence = makeRangeVar(snamespace, sname, -1);
-
-	/*
-	 * Copy the persistence of the table.  For CREATE TABLE, we get the
-	 * persistence from cxt->relation, which comes from the CreateStmt in
-	 * progress.  For ALTER TABLE, the parser won't set
-	 * cxt->relation->relpersistence, but we have cxt->rel as the existing
-	 * table, so we copy the persistence from there.
-	 */
-	seqstmt->sequence->relpersistence = cxt->rel ? cxt->rel->rd_rel->relpersistence : cxt->relation->relpersistence;
-
+	seqstmt->sequence->relpersistence = seqpersistence;
 	seqstmt->options = seqoptions;
 
 	/*
@@ -903,12 +931,6 @@ transformTableConstraint(CreateStmtContext *cxt, Constraint *constraint)
 						 errmsg("exclusion constraints are not supported on foreign tables"),
 						 parser_errposition(cxt->pstate,
 											constraint->location)));
-			if (cxt->ispartitioned)
-				ereport(ERROR,
-						(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-						 errmsg("exclusion constraints are not supported on partitioned tables"),
-						 parser_errposition(cxt->pstate,
-											constraint->location)));
 			cxt->ixconstraints = lappend(cxt->ixconstraints, constraint);
 			break;
 
@@ -1022,7 +1044,6 @@ transformTableLikeClause(CreateStmtContext *cxt, TableLikeClause *table_like_cla
 	{
 		Form_pg_attribute attribute = TupleDescAttr(tupleDesc,
 													parent_attno - 1);
-		char	   *attributeName = NameStr(attribute->attname);
 		ColumnDef  *def;
 
 		/*
@@ -1034,24 +1055,12 @@ transformTableLikeClause(CreateStmtContext *cxt, TableLikeClause *table_like_cla
 		/*
 		 * Create a new column, which is marked as NOT inherited.
 		 *
-		 * For constraints, ONLY the NOT NULL constraint is inherited by the
+		 * For constraints, ONLY the not-null constraint is inherited by the
 		 * new column definition per SQL99.
 		 */
-		def = makeNode(ColumnDef);
-		def->colname = pstrdup(attributeName);
-		def->typeName = makeTypeNameFromOid(attribute->atttypid,
-											attribute->atttypmod);
-		def->inhcount = 0;
-		def->is_local = true;
+		def = makeColumnDef(NameStr(attribute->attname), attribute->atttypid,
+							attribute->atttypmod, attribute->attcollation);
 		def->is_not_null = attribute->attnotnull;
-		def->is_from_type = false;
-		def->storage = 0;
-		def->raw_default = NULL;
-		def->cooked_default = NULL;
-		def->collClause = NULL;
-		def->collOid = attribute->attcollation;
-		def->constraints = NIL;
-		def->location = -1;
 
 		/*
 		 * Add to column list
@@ -1079,7 +1088,7 @@ transformTableLikeClause(CreateStmtContext *cxt, TableLikeClause *table_like_cla
 			 * find sequence owned by old column; extract sequence parameters;
 			 * build new create sequence command
 			 */
-			seq_relid = getIdentitySequence(RelationGetRelid(relation), attribute->attnum, false);
+			seq_relid = getIdentitySequence(relation, attribute->attnum, false);
 			seq_options = sequence_options(seq_relid);
 			generateSerialExtraStmts(cxt, def,
 									 InvalidOid, seq_options,
@@ -1227,20 +1236,11 @@ expandTableLikeClause(RangeVar *heapRel, TableLikeClause *table_like_clause)
 				 (table_like_clause->options & CREATE_TABLE_LIKE_GENERATED) :
 				 (table_like_clause->options & CREATE_TABLE_LIKE_DEFAULTS)))
 			{
-				Node	   *this_default = NULL;
-				AttrDefault *attrdef = constr->defval;
+				Node	   *this_default;
 				AlterTableCmd *atsubcmd;
 				bool		found_whole_row;
 
-				/* Find default in constraint structure */
-				for (int i = 0; i < constr->num_defval; i++)
-				{
-					if (attrdef[i].adnum == parent_attno)
-					{
-						this_default = stringToNode(attrdef[i].adbin);
-						break;
-					}
-				}
+				this_default = TupleDescGetDefault(tupleDesc, parent_attno);
 				if (this_default == NULL)
 					elog(ERROR, "default expression not found for attribute %d of relation \"%s\"",
 						 parent_attno, RelationGetRelationName(relation));
@@ -1481,20 +1481,10 @@ transformOfType(CreateStmtContext *cxt, TypeName *ofTypename)
 		if (attr->attisdropped)
 			continue;
 
-		n = makeNode(ColumnDef);
-		n->colname = pstrdup(NameStr(attr->attname));
-		n->typeName = makeTypeNameFromOid(attr->atttypid, attr->atttypmod);
-		n->inhcount = 0;
-		n->is_local = true;
-		n->is_not_null = false;
+		n = makeColumnDef(NameStr(attr->attname), attr->atttypid,
+						  attr->atttypmod, attr->attcollation);
 		n->is_from_type = true;
-		n->storage = 0;
-		n->raw_default = NULL;
-		n->cooked_default = NULL;
-		n->collClause = NULL;
-		n->collOid = attr->attcollation;
-		n->constraints = NIL;
-		n->location = -1;
+
 		cxt->columns = lappend(cxt->columns, n);
 	}
 	ReleaseTupleDesc(tupdesc);
@@ -2163,7 +2153,7 @@ transformIndexConstraints(CreateStmtContext *cxt)
  *		transformIndexConstraints.
  *
  * We return an IndexStmt.  For a PRIMARY KEY constraint, we additionally
- * produce NOT NULL constraints, either by marking ColumnDefs in cxt->columns
+ * produce not-null constraints, either by marking ColumnDefs in cxt->columns
  * as is_not_null or by adding an ALTER TABLE SET NOT NULL command to
  * cxt->alist.
  */
@@ -2450,7 +2440,7 @@ transformIndexConstraint(Constraint *constraint, CreateStmtContext *cxt)
 			{
 				/*
 				 * column is defined in the new table.  For PRIMARY KEY, we
-				 * can apply the NOT NULL constraint cheaply here ... unless
+				 * can apply the not-null constraint cheaply here ... unless
 				 * the column is marked is_from_type, in which case marking it
 				 * here would be ineffective (see MergeAttributes).
 				 */
@@ -2466,7 +2456,7 @@ transformIndexConstraint(Constraint *constraint, CreateStmtContext *cxt)
 				/*
 				 * column will be a system column in the new table, so accept
 				 * it. System columns can't ever be null, so no need to worry
-				 * about PRIMARY/NOT NULL constraint.
+				 * about PRIMARY/not-null constraint.
 				 */
 				found = true;
 			}
@@ -3406,28 +3396,36 @@ transformAlterTableStmt(Oid relid, AlterTableStmt *stmt,
 
 					/*
 					 * For identity column, create ALTER SEQUENCE command to
-					 * change the data type of the sequence.
+					 * change the data type of the sequence. Identity sequence
+					 * is associated with the top level partitioned table.
+					 * Hence ignore partitions.
 					 */
-					attnum = get_attnum(relid, cmd->name);
-					if (attnum == InvalidAttrNumber)
-						ereport(ERROR,
-								(errcode(ERRCODE_UNDEFINED_COLUMN),
-								 errmsg("column \"%s\" of relation \"%s\" does not exist",
-										cmd->name, RelationGetRelationName(rel))));
-
-					if (attnum > 0 &&
-						TupleDescAttr(tupdesc, attnum - 1)->attidentity)
+					if (!RelationGetForm(rel)->relispartition)
 					{
-						Oid			seq_relid = getIdentitySequence(relid, attnum, false);
-						Oid			typeOid = typenameTypeId(pstate, def->typeName);
-						AlterSeqStmt *altseqstmt = makeNode(AlterSeqStmt);
+						attnum = get_attnum(relid, cmd->name);
+						if (attnum == InvalidAttrNumber)
+							ereport(ERROR,
+									(errcode(ERRCODE_UNDEFINED_COLUMN),
+									 errmsg("column \"%s\" of relation \"%s\" does not exist",
+											cmd->name, RelationGetRelationName(rel))));
 
-						altseqstmt->sequence = makeRangeVar(get_namespace_name(get_rel_namespace(seq_relid)),
-															get_rel_name(seq_relid),
-															-1);
-						altseqstmt->options = list_make1(makeDefElem("as", (Node *) makeTypeNameFromOid(typeOid, -1), -1));
-						altseqstmt->for_identity = true;
-						cxt.blist = lappend(cxt.blist, altseqstmt);
+						if (attnum > 0 &&
+							TupleDescAttr(tupdesc, attnum - 1)->attidentity)
+						{
+							Oid			seq_relid = getIdentitySequence(rel, attnum, false);
+							Oid			typeOid = typenameTypeId(pstate, def->typeName);
+							AlterSeqStmt *altseqstmt = makeNode(AlterSeqStmt);
+
+							altseqstmt->sequence
+								= makeRangeVar(get_namespace_name(get_rel_namespace(seq_relid)),
+											   get_rel_name(seq_relid),
+											   -1);
+							altseqstmt->options = list_make1(makeDefElem("as",
+																		 (Node *) makeTypeNameFromOid(typeOid, -1),
+																		 -1));
+							altseqstmt->for_identity = true;
+							cxt.blist = lappend(cxt.blist, altseqstmt);
+						}
 					}
 
 					newcmds = lappend(newcmds, cmd);
@@ -3493,7 +3491,7 @@ transformAlterTableStmt(Oid relid, AlterTableStmt *stmt,
 								 errmsg("column \"%s\" of relation \"%s\" does not exist",
 										cmd->name, RelationGetRelationName(rel))));
 
-					seq_relid = getIdentitySequence(relid, attnum, true);
+					seq_relid = getIdentitySequence(rel, attnum, true);
 
 					if (seq_relid)
 					{
@@ -3600,14 +3598,14 @@ transformAlterTableStmt(Oid relid, AlterTableStmt *stmt,
 	{
 		newcmd = makeNode(AlterTableCmd);
 		newcmd->subtype = AT_AddConstraint;
-		newcmd->def = (Node *) lfirst(l);
+		newcmd->def = (Node *) lfirst_node(Constraint, l);
 		newcmds = lappend(newcmds, newcmd);
 	}
 	foreach(l, cxt.fkconstraints)
 	{
 		newcmd = makeNode(AlterTableCmd);
 		newcmd->subtype = AT_AddConstraint;
-		newcmd->def = (Node *) lfirst(l);
+		newcmd->def = (Node *) lfirst_node(Constraint, l);
 		newcmds = lappend(newcmds, newcmd);
 	}
 
